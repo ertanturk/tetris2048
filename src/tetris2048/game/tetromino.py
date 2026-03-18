@@ -1,0 +1,226 @@
+"""Tetromino class for representing Tetris pieces.
+
+A Tetromino is a game piece composed of four tiles arranged in various shapes
+(I, O, T, S, Z, L, J). This implementation currently supports I, O, and Z shapes.
+"""
+
+import copy as cp
+import random
+from typing import TYPE_CHECKING
+
+import numpy as np
+
+from tetris2048.core.point import Point
+from tetris2048.core.tile import Tile
+
+if TYPE_CHECKING:
+    from tetris2048.game.game_grid import GameGrid
+
+
+class Tetromino:
+    """Represents a Tetris piece (tetromino).
+
+    A Tetromino is composed of four tiles arranged in one of seven standard shapes.
+    This class handles the piece's position, rotation, and movement on the grid.
+
+    Attributes:
+        type (str): The shape type ('I', 'O', 'Z', etc.)
+        tile_matrix (np.ndarray): 2D matrix of tiles in this tetromino.
+        bottom_left_cell (Point): The position of the bottom-left corner.
+        grid_height (int): The height of the game grid (class variable).
+        grid_width (int): The width of the game grid (class variable).
+    """
+
+    # Standard Tetromino shapes
+    SHAPES = {
+        "I": [(1, 0), (1, 1), (1, 2), (1, 3)],
+        "O": [(0, 0), (0, 1), (1, 0), (1, 1)],
+        "Z": [(0, 1), (1, 1), (1, 2), (2, 2)],
+    }
+
+    # Game grid dimensions (set by GameEngine)
+    grid_height: int = 20
+    grid_width: int = 12
+
+    def __init__(self, type: str) -> None:
+        """Initialize a tetromino with the given type.
+
+        Args:
+            type: The shape type ('I', 'O', 'Z', etc.)
+        """
+        self.type = type
+
+        # Determine the size of the tile matrix
+        if type == "I":
+            n = 4
+        elif type == "O":
+            n = 2
+        else:  # Z and others
+            n = 3
+
+        # Create tile matrix
+        self.tile_matrix: np.ndarray = np.full((n, n), None)
+
+        # Place tiles according to the shape
+        for i in range(4):
+            col_index, row_index = self.SHAPES[type][i]
+            self.tile_matrix[row_index][col_index] = Tile()
+
+        # Initialize position (random horizontal, above grid)
+        self.bottom_left_cell = Point()
+        self.bottom_left_cell.y = self.grid_height - 1
+        self.bottom_left_cell.x = random.randint(0, self.grid_width - n)  # nosec B311
+
+    def get_cell_position(self, row: int, col: int) -> Point:
+        """Get the position of a cell in the tetromino.
+
+        Args:
+            row: The row index in the tile matrix.
+            col: The column index in the tile matrix.
+
+        Returns:
+            The position of the cell on the game grid.
+        """
+        n = len(self.tile_matrix)
+        position = Point()
+        position.x = self.bottom_left_cell.x + col
+        position.y = self.bottom_left_cell.y + (n - 1) - row
+        return position
+
+    def get_min_bounded_tile_matrix(
+        self, return_position: bool = False
+    ) -> tuple[np.ndarray, Point | None]:
+        """Get the minimal bounding tile matrix without empty rows/columns.
+
+        Args:
+            return_position: If True, also return the bottom-left corner position.
+
+        Returns:
+            If return_position is False: just the tile matrix.
+            If return_position is True: tuple of (tile_matrix, position).
+        """
+        n = len(self.tile_matrix)
+        min_row, max_row = n - 1, 0
+        min_col, max_col = n - 1, 0
+
+        # Find the bounding box of non-empty cells
+        for row in range(n):
+            for col in range(n):
+                if self.tile_matrix[row][col] is not None:
+                    min_row = min(min_row, row)
+                    max_row = max(max_row, row)
+                    min_col = min(min_col, col)
+                    max_col = max(max_col, col)
+
+        # Copy the bounded tiles
+        copy = np.full((max_row - min_row + 1, max_col - min_col + 1), None)
+        for row in range(min_row, max_row + 1):
+            for col in range(min_col, max_col + 1):
+                if self.tile_matrix[row][col] is not None:
+                    row_ind = row - min_row
+                    col_ind = col - min_col
+                    copy[row_ind][col_ind] = cp.deepcopy(self.tile_matrix[row][col])
+
+        if not return_position:
+            return copy, None
+
+        # Compute the new bottom-left corner position
+        blc_position = cp.copy(self.bottom_left_cell)
+        blc_position.translate(min_col, (n - 1) - max_row)
+        return copy, blc_position
+
+    def draw(self) -> None:
+        """Draw this tetromino on the game grid."""
+        n = len(self.tile_matrix)
+        for row in range(n):
+            for col in range(n):
+                tile = self.tile_matrix[row][col]
+                if isinstance(tile, Tile):
+                    position = self.get_cell_position(row, col)
+                    # Only draw tiles inside the grid
+                    if position.y < self.grid_height:
+                        tile.draw(position)
+
+    def move(self, direction: str, game_grid: "GameGrid") -> bool:
+        """Move this tetromino in the given direction.
+
+        Args:
+            direction: The direction to move ('left', 'right', or 'down').
+            game_grid: The game grid to check for collisions.
+
+        Returns:
+            True if the move was successful, False otherwise.
+        """
+        if not self.can_be_moved(direction, game_grid):
+            return False
+
+        if direction == "left":
+            self.bottom_left_cell.x -= 1
+        elif direction == "right":
+            self.bottom_left_cell.x += 1
+        elif direction == "down":
+            self.bottom_left_cell.y -= 1
+
+        return True
+
+    def can_be_moved(self, direction: str, game_grid: "GameGrid") -> bool:
+        """Check if this tetromino can be moved in the given direction.
+
+        Args:
+            direction: The direction to check ('left', 'right', or 'down').
+            game_grid: The game grid to check for collisions.
+
+        Returns:
+            True if the move is valid, False otherwise.
+        """
+        n = len(self.tile_matrix)
+
+        if direction in ("left", "right"):
+            for row_index in range(n):
+                for col_index in range(n):
+                    if direction == "left":
+                        row, col = row_index, col_index
+                        if self.tile_matrix[row][col] is not None:
+                            leftmost = self.get_cell_position(row, col)
+                            if leftmost.x == 0:
+                                return False
+                            if game_grid.is_occupied(leftmost.y, leftmost.x - 1):
+                                return False
+                            break
+                    else:  # right
+                        row, col = row_index, n - 1 - col_index
+                        if self.tile_matrix[row][col] is not None:
+                            rightmost = self.get_cell_position(row, col)
+                            if rightmost.x == self.grid_width - 1:
+                                return False
+                            if game_grid.is_occupied(rightmost.y, rightmost.x + 1):
+                                return False
+                            break
+        else:  # down
+            for col in range(n):
+                for row in range(n - 1, -1, -1):
+                    if self.tile_matrix[row][col] is not None:
+                        bottommost = self.get_cell_position(row, col)
+                        if bottommost.y == 0:
+                            return False
+                        if game_grid.is_occupied(bottommost.y - 1, bottommost.x):
+                            return False
+                        break
+
+        return True
+
+    def __str__(self) -> str:
+        """Return the string representation of this tetromino.
+
+        Returns:
+            A string showing the tetromino type.
+        """
+        return f"Tetromino({self.type})"
+
+    def __repr__(self) -> str:
+        """Return the representation of this tetromino.
+
+        Returns:
+            A string representation suitable for debugging.
+        """
+        return f"Tetromino(type='{self.type}', position={self.bottom_left_cell})"

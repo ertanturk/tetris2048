@@ -1,6 +1,8 @@
 include README.md
 include LICENSE
 include pyproject.toml
+recursive-include images *.png
+recursive-include src/tetris2048 *.py
 recursive-include docs *.md
 recursive-exclude .github *
 global-exclude __pycache__

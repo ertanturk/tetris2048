@@ -58,6 +58,7 @@ Documentation = "https://github.com/ertanturk/tetris2048#readme"
 Issues = "https://github.com/ertanturk/tetris2048/issues"
 
 [project.scripts]
+tetris2048 = "tetris2048.game.game_engine:main"
 
 [tool.ruff]
 line-length = 100
