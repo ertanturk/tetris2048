@@ -1,0 +1,107 @@
+{
+  // Shared workspace defaults for consistent team experience
+  "editor.formatOnSave": true,
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "editor.minimap.enabled": false,
+  "editor.smoothScrolling": true,
+  "editor.cursorStyle": "line",
+  "editor.cursorBlinking": "smooth",
+  "editor.selectionHighlight": true,
+  "editor.renderLineHighlight": "line",
+  "editor.wordWrap": "off",
+  // Keep repository clean and IDE fast
+  "files.exclude": {
+    "**/.git": true,
+    "**/__pycache__": true,
+    "**/.mypy_cache": true,
+    "**/.ruff_cache": true,
+    "**/.pytest_cache": true,
+    "**/*.egg-info/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.git": true,
+    "**/coverage": true,
+    "**/__pycache__": true,
+    "**/.venv": true,
+    "**/.ruff_cache": true,
+    "**/*.egg-info/**": true
+  },
+  // Python + Pylance defaults for this project
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.languageServerMode": "light",
+  "python.analysis.diagnosticMode": "workspace",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.enablePytestSupport": true,
+  "python.analysis.useLibraryCodeForTypes": true,
+  "python.analysis.indexing": false,
+  "python.analysis.inlayHints.variableTypes": true,
+  "python.analysis.userFileIndexingLimit": 2000,
+  "python.analysis.exclude": [
+    "**/.venv",
+    "**/__pycache__",
+    "**/.mypy_cache",
+    "**/.ruff_cache",
+    "**/.pytest_cache",
+    "**/build",
+    "**/dist",
+    "**/node_modules",
+    "**/.*"
+  ],
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportUnusedImport": "none",
+    "reportUnusedVariable": "none",
+    "reportGeneralTypeIssues": "warning",
+    "reportPrivateUsage": "information"
+  },
+  // Pytest integration
+  "python.testing.pytestEnabled": true,
+  "python.testing.autoTestDiscoverOnSaveEnabled": false,
+  "python.testing.pytestArgs": [
+    "--color=yes",
+    "-v",
+    "--tb=short"
+  ],
+  // Mypy extension behavior
+  "mypy-type-checker.reportingScope": "file",
+  "mypy-type-checker.args": [
+    "--follow-imports=skip",
+    "--ignore-missing-imports"
+  ],
+  // Ruff as the canonical Python formatter/linter
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "always",
+      "source.organizeImports.ruff": "always"
+    }
+  },
+  "workbench.editorAssociations": {
+    "*.copilotmd": "vscode.markdown.preview.editor",
+    "*.md": "markdownEditorOptimized.editor",
+    "*.markdown": "markdownEditorOptimized.editor",
+    "*.mdx": "markdownEditorOptimized.editor",
+    "*.mdc": "markdownEditorOptimized.editor",
+    "git:/**/*.md": "default",
+    "git:/**/*.markdown": "default",
+    "git:/**/*.mdx": "default",
+    "git:/**/*.mdc": "default",
+    "git:**/*.md": "default",
+    "git:**/*.markdown": "default",
+    "git:**/*.mdx": "default",
+    "git:**/*.mdc": "default",
+    "chat-editing-text-model:/**/*.md": "default",
+    "chat-editing-text-model:/**/*.markdown": "default",
+    "chat-editing-text-model:/**/*.mdx": "default",
+    "chat-editing-text-model:/**/*.mdc": "default",
+    "chat-editing-text-model:**/*.md": "default",
+    "chat-editing-text-model:**/*.markdown": "default",
+    "chat-editing-text-model:**/*.mdx": "default",
+    "chat-editing-text-model:**/*.mdc": "default"
+  }
+}

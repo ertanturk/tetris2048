@@ -1,0 +1,41 @@
+name: Security
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.12" ]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        pip install bandit==1.7.5 pip-audit==2.6.0 -e ".[dev]"
+
+    - name: Security check with bandit
+      run: bandit -c pyproject.toml -r . --format json --output bandit-report.json || true
+
+    - name: Display bandit results
+      run: bandit -c pyproject.toml -r . --format txt
+      if: always()
+
+    - name: Audit dependencies with pip-audit
+      run: pip-audit -r requirements-dev.txt --desc
+      continue-on-error: true

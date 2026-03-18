@@ -1,0 +1,91 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta:__legacy__"
+
+[project]
+name = "tetris2048"
+version = "0.0.0"
+description = "Project for the COMP 204 Programming Studio course at MEF University. This Python 3 application integrates mechanics from Tetris and 2048"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+    "pygame",
+    "numpy",
+]
+keywords = [
+    "tetris",
+    "2048",
+    "pygame",
+    "game",
+    "education",
+]
+
+authors = [
+    { name = "Ertan Tunç Türk", email = "turke@mef.edu.tr" },
+]
+
+maintainers = [
+    { name = "Ertan Tunç Türk", email = "turke@mef.edu.tr" },
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Games/Entertainment :: Puzzle Games",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "mypy",
+    "bandit",
+    "pre-commit",
+    "pip-audit",
+    "pytest",
+    "pytest-cov",
+    "numpy",
+]
+
+[project.urls]
+Homepage = "https://github.com/ertanturk/tetris2048"
+Repository = "https://github.com/ertanturk/tetris2048"
+Documentation = "https://github.com/ertanturk/tetris2048#readme"
+Issues = "https://github.com/ertanturk/tetris2048/issues"
+
+[project.scripts]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+
+[tool.pytest.ini_options]
+addopts = "-v --tb=short"
+testpaths = ["tests"]
+minversion = "7.0"
+
+[tool.coverage.run]
+branch = true
+source = ["."]
+omit = ["tests/*", ".venv/*"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+skips = ["B101"]

@@ -1,0 +1,11 @@
+ruff
+pylance
+mypy
+uv
+bandit
+pre-commit
+pip-audit
+pygame
+pytest
+pytest-cov
+numpy
