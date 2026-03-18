@@ -24,10 +24,15 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
 
-    - name: Install dependencies
+    - name: Install system dependencies
       run: |
-        python -m pip install --upgrade pip setuptools wheel
-        pip install ruff==0.3.0 mypy==1.8.0 numpy==1.24.3
+        sudo apt-get update
+        sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel build
+        pip install ruff mypy numpy
 
     - name: Check if code exists
       id: check_code
