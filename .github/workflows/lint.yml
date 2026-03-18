@@ -49,7 +49,7 @@ jobs:
 
     - name: Lint with ruff
       if: steps.check_code.outputs.code_exists == 'true'
-      run: ruff check . --select E,F,I,B,UP --show-source
+      run: ruff check . --select E,F,I,B,UP
 
     - name: Type check with mypy
       if: steps.check_code.outputs.code_exists == 'true'
