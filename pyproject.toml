@@ -71,6 +71,7 @@ ignore = []
 [tool.mypy]
 python_version = "3.12"
 strict = true
+exclude = ["build/", "\\.venv/"]
 
 [tool.pytest.ini_options]
 addopts = "-v --tb=short"

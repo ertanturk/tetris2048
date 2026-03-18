@@ -65,12 +65,6 @@
     "-v",
     "--tb=short"
   ],
-  // Mypy extension behavior
-  "mypy-type-checker.reportingScope": "file",
-  "mypy-type-checker.args": [
-    "--follow-imports=skip",
-    "--ignore-missing-imports"
-  ],
   // Ruff as the canonical Python formatter/linter
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",

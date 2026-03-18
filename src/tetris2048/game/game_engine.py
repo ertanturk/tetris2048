@@ -6,13 +6,17 @@ handles user input, and manages the overall game state.
 
 import os
 import random
-from typing import TYPE_CHECKING, Any, cast
+import types
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from tetris2048.game.game_grid import GameGrid
     from tetris2048.game.tetromino import Tetromino
+    from tetris2048.rendering.color import Color
+    from tetris2048.rendering.picture import Picture
 
 
-def _lazy_import_game_grid() -> Any:
+def _lazy_import_game_grid() -> type["GameGrid"]:
     """Lazily import GameGrid to avoid circular imports."""
     from tetris2048.game.game_grid import GameGrid
 
@@ -23,24 +27,24 @@ def _lazy_import_tetromino() -> type["Tetromino"]:
     """Lazily import Tetromino to avoid circular imports."""
     from tetris2048.game.tetromino import Tetromino
 
-    return cast(type["Tetromino"], Tetromino)
+    return Tetromino
 
 
-def _lazy_import_color() -> Any:
+def _lazy_import_color() -> type["Color"]:
     """Lazily import Color to avoid circular imports."""
     from tetris2048.rendering.color import Color
 
     return Color
 
 
-def _lazy_import_picture() -> Any:
+def _lazy_import_picture() -> type["Picture"]:
     """Lazily import Picture to avoid circular imports."""
     from tetris2048.rendering.picture import Picture
 
     return Picture
 
 
-def _lazy_import_stddraw() -> Any:
+def _lazy_import_stddraw() -> types.ModuleType:
     """Lazily import stddraw to avoid circular imports."""
     from tetris2048.rendering import stddraw
 
@@ -208,6 +212,7 @@ class GameEngine:
                 tiles, pos = self.current_tetromino.get_min_bounded_tile_matrix(
                     return_position=True
                 )
+                assert pos is not None
                 self.grid.update_grid(tiles, pos)
 
                 # Spawn next tetromino
