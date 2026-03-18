@@ -29,11 +29,27 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         pip install ruff==0.3.0 mypy==1.8.0 numpy==1.24.3
 
+    - name: Check if code exists
+      id: check_code
+      run: |
+        if find . -name '*.py' -type f -not -path './.venv/*' 2>/dev/null | grep -q .; then
+          echo "code_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "code_exists=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Format code with ruff
+      if: steps.check_code.outputs.code_exists == 'true'
       run: ruff format . --check --diff
 
     - name: Lint with ruff
+      if: steps.check_code.outputs.code_exists == 'true'
       run: ruff check . --select E,F,I,B,UP --show-source
 
     - name: Type check with mypy
+      if: steps.check_code.outputs.code_exists == 'true'
       run: mypy . --show-error-codes --show-error-context
+
+    - name: No code found - skipping linting
+      if: steps.check_code.outputs.code_exists == 'false'
+      run: echo "⚠️  No Python code found. Skipping linting checks."

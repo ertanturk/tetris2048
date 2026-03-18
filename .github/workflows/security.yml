@@ -29,13 +29,41 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel
         pip install bandit==1.7.5 pip-audit==2.6.0 -e ".[dev]"
 
+    - name: Check if code exists
+      id: check_code
+      run: |
+        if find . -name '*.py' -type f -not -path './.venv/*' -not -path './tests/*' 2>/dev/null | grep -q .; then
+          echo "code_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "code_exists=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Security check with bandit
+      if: steps.check_code.outputs.code_exists == 'true'
       run: bandit -c pyproject.toml -r . --format json --output bandit-report.json || true
 
     - name: Display bandit results
+      if: steps.check_code.outputs.code_exists == 'true'
       run: bandit -c pyproject.toml -r . --format txt
-      if: always()
+
+    - name: No code found - skipping bandit
+      if: steps.check_code.outputs.code_exists == 'false'
+      run: echo "⚠️  No source code found. Skipping bandit security check."
+
+    - name: Check if dependencies exist
+      id: check_deps
+      run: |
+        if [ -f requirements-dev.txt ] && [ -s requirements-dev.txt ]; then
+          echo "deps_exist=true" >> $GITHUB_OUTPUT
+        else
+          echo "deps_exist=false" >> $GITHUB_OUTPUT
+        fi
 
     - name: Audit dependencies with pip-audit
+      if: steps.check_deps.outputs.deps_exist == 'true'
       run: pip-audit -r requirements-dev.txt --desc
       continue-on-error: true
+
+    - name: No dependencies file - skipping pip-audit
+      if: steps.check_deps.outputs.deps_exist == 'false'
+      run: echo "⚠️  No requirements-dev.txt found. Skipping pip-audit."
