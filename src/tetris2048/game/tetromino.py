@@ -24,11 +24,11 @@ class Tetromino:
 	This class handles the piece's position, rotation, and movement on the grid.
 
 	Attributes:
-	    type (str): The shape type ('I', 'O', 'Z', etc.)
-	    tile_matrix (np.ndarray): 2D matrix of tiles in this tetromino.
-	    bottom_left_cell (Point): The position of the bottom-left corner.
-	    grid_height (int): The height of the game grid (class variable).
-	    grid_width (int): The width of the game grid (class variable).
+		type (str): The shape type ('I', 'O', 'Z', etc.)
+		tile_matrix (np.ndarray): 2D matrix of tiles in this tetromino.
+		bottom_left_cell (Point): The position of the bottom-left corner.
+		grid_height (int): The height of the game grid (class variable).
+		grid_width (int): The width of the game grid (class variable).
 	"""
 
 	# Standard Tetromino shapes
@@ -46,7 +46,7 @@ class Tetromino:
 		"""Initialize a tetromino with the given type.
 
 		Args:
-		    type: The shape type ('I', 'O', 'Z', etc.)
+			type: The shape type ('I', 'O', 'Z', etc.)
 		"""
 		self.type = type
 
@@ -75,11 +75,11 @@ class Tetromino:
 		"""Get the position of a cell in the tetromino.
 
 		Args:
-		    row: The row index in the tile matrix.
-		    col: The column index in the tile matrix.
+			row: The row index in the tile matrix.
+			col: The column index in the tile matrix.
 
 		Returns:
-		    The position of the cell on the game grid.
+			The position of the cell on the game grid.
 		"""
 		n = len(self.tile_matrix)
 		position = Point()
@@ -93,11 +93,11 @@ class Tetromino:
 		"""Get the minimal bounding tile matrix without empty rows/columns.
 
 		Args:
-		    return_position: If True, also return the bottom-left corner position.
+			return_position: If True, also return the bottom-left corner position.
 
 		Returns:
-		    If return_position is False: just the tile matrix.
-		    If return_position is True: tuple of (tile_matrix, position).
+			If return_position is False: just the tile matrix.
+			If return_position is True: tuple of (tile_matrix, position).
 		"""  # noqa: E501
 		n = len(self.tile_matrix)
 		min_row, max_row = n - 1, 0
@@ -147,11 +147,11 @@ class Tetromino:
 		"""Move this tetromino in the given direction.
 
 		Args:
-		    direction: The direction to move ('left', 'right', or 'down').
-		    game_grid: The game grid to check for collisions.
+			direction: The direction to move ('left', 'right', or 'down').
+			game_grid: The game grid to check for collisions.
 
 		Returns:
-		    True if the move was successful, False otherwise.
+			True if the move was successful, False otherwise.
 		"""
 		if not self.can_be_moved(direction, game_grid):
 			return False
@@ -235,7 +235,7 @@ class Tetromino:
 		"""Return the string representation of this tetromino.
 
 		Returns:
-		    A string showing the tetromino type.
+			A string showing the tetromino type.
 		"""
 		return f"Tetromino({self.type})"
 

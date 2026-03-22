@@ -9,16 +9,16 @@ class Point:
 	"""Represents a point as a location in 2D space.
 
 	Attributes:
-	    x (int): The x-coordinate of the point.
-	    y (int): The y-coordinate of the point.
+		x (int): The x-coordinate of the point.
+		y (int): The y-coordinate of the point.
 	"""
 
 	def __init__(self, x: int = 0, y: int = 0) -> None:
 		"""Initialize a point at the given location.
 
 		Args:
-		    x: The x-coordinate. Defaults to 0.
-		    y: The y-coordinate. Defaults to 0.
+			x: The x-coordinate. Defaults to 0.
+			y: The y-coordinate. Defaults to 0.
 		"""
 		self.x = x
 		self.y = y
@@ -27,8 +27,8 @@ class Point:
 		"""Move this point by the given deltas.
 
 		Args:
-		    dx: The change in x-coordinate.
-		    dy: The change in y-coordinate.
+			dx: The change in x-coordinate.
+			dy: The change in y-coordinate.
 		"""
 		self.x += dx
 		self.y += dy
@@ -37,8 +37,8 @@ class Point:
 		"""Move this point to the given location.
 
 		Args:
-		    x: The new x-coordinate.
-		    y: The new y-coordinate.
+			x: The new x-coordinate.
+			y: The new y-coordinate.
 		"""
 		self.x = x
 		self.y = y
@@ -47,7 +47,7 @@ class Point:
 		"""Return the string representation of this point.
 
 		Returns:
-		    A string in the format '(x, y)'.
+			A string in the format '(x, y)'.
 		"""
 		return f"({self.x}, {self.y})"
 
@@ -55,6 +55,6 @@ class Point:
 		"""Return the representation of this point.
 
 		Returns:
-		    A string representation suitable for debugging.
+			A string representation suitable for debugging.
 		"""
 		return f"Point(x={self.x}, y={self.y})"

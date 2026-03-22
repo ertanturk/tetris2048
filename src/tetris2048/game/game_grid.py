@@ -36,18 +36,19 @@ class GameGrid:
 
 	Attributes:
 	grid_height (int): The height of the grid in cells.
-	    grid_width (int): The width of the grid in cells.
-	    tile_matrix (np.ndarray): 2D matrix storing tiles or None for empty cells.
-	    current_tetromino (Optional): The currently active tetromino.
-	    game_over (bool): Whether the game has ended.
+		grid_width (int): The width of the grid in cells.
+		tile_matrix (np.ndarray): 2D matrix storing tiles or None for
+			empty cells.
+		current_tetromino (Optional): The currently active tetromino.
+		game_over (bool): Whether the game has ended.
 	"""
 
 	def __init__(self, grid_h: int, grid_w: int) -> None:
 		"""Initialize the game grid with given dimensions.
 
 		Args:
-		    grid_h: The height of the grid in cells.
-		    grid_w: The width of the grid in cells.
+			grid_h: The height of the grid in cells.
+			grid_w: The width of the grid in cells.
 		"""
 		Color = _lazy_import_color()
 		self.grid_height = grid_h
@@ -129,11 +130,12 @@ class GameGrid:
 		"""Check if a grid cell is occupied by a tile.
 
 		Args:
-		    row: The row index of the cell.
-		    col: The column index of the cell.
+			row: The row index of the cell.
+			col: The column index of the cell.
 
 		Returns:
-		    True if the cell is occupied or outside the grid, False otherwise.
+			True if the cell is occupied or outside the grid, False
+			otherwise.
 		"""
 		if not self.is_inside(row, col):
 			return False
@@ -143,11 +145,11 @@ class GameGrid:
 		"""Check if a position is within the game grid bounds.
 
 		Args:
-		    row: The row index to check.
-		    col: The column index to check.
+			row: The row index to check.
+			col: The column index to check.
 
 		Returns:
-		    True if the position is inside the grid, False otherwise.
+			True if the position is inside the grid, False otherwise.
 		"""
 		return 0 <= row < self.grid_height and 0 <= col < self.grid_width
 
@@ -155,11 +157,11 @@ class GameGrid:
 		"""Lock tiles onto the grid after a tetromino lands.
 
 		Args:
-		    tiles_to_lock: The tile matrix of the landed tetromino.
-		    blc_position: The bottom-left corner position of the tiles.
+			tiles_to_lock: The tile matrix of the landed tetromino.
+			blc_position: The bottom-left corner position of the tiles.
 
 		Returns:
-		    True if the game is over, False otherwise.
+			True if the game is over, False otherwise.
 		"""
 		self.current_tetromino = None
 

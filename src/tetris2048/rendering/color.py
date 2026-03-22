@@ -8,18 +8,18 @@ class Color:
 	"""An RGB color object.
 
 	Attributes:
-	    r (int): The red component (0-255).
-	    g (int): The green component (0-255).
-	    b (int): The blue component (0-255).
+		r (int): The red component (0-255).
+		g (int): The green component (0-255).
+		b (int): The blue component (0-255).
 	"""
 
 	def __init__(self, r: int = 0, g: int = 0, b: int = 0) -> None:
 		"""Initialize a Color with RGB components.
 
 		Args:
-		    r: Red component (0-255). Defaults to 0.
-		    g: Green component (0-255). Defaults to 0.
-		    b: Blue component (0-255). Defaults to 0.
+			r: Red component (0-255). Defaults to 0.
+			g: Green component (0-255). Defaults to 0.
+			b: Blue component (0-255). Defaults to 0.
 		"""
 		self._r = r
 		self._g = g
@@ -29,7 +29,7 @@ class Color:
 		"""Get the red component of this color.
 
 		Returns:
-		    The red component value.
+			The red component value.
 		"""
 		return self._r
 
@@ -37,7 +37,7 @@ class Color:
 		"""Get the green component of this color.
 
 		Returns:
-		    The green component value.
+			The green component value.
 		"""
 		return self._g
 
@@ -45,7 +45,7 @@ class Color:
 		"""Get the blue component of this color.
 
 		Returns:
-		    The blue component value.
+			The blue component value.
 		"""
 		return self._b
 
@@ -53,7 +53,7 @@ class Color:
 		"""Return the string representation of this color.
 
 		Returns:
-		    A string in the format '(r, g, b)'.
+			A string in the format '(r, g, b)'.
 		"""
 		return f"({self._r}, {self._g}, {self._b})"
 
@@ -61,7 +61,7 @@ class Color:
 		"""Return the representation of this color.
 
 		Returns:
-		    A string representation suitable for debugging.
+			A string representation suitable for debugging.
 		"""
 		return f"Color({self._r}, {self._g}, {self._b})"
 

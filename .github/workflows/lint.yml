@@ -45,15 +45,15 @@ jobs:
 
     - name: Format code with ruff
       if: steps.check_code.outputs.code_exists == 'true'
-      run: ruff format . --check --diff
+      run: ruff format . --check --diff --config pyproject.toml
 
     - name: Lint with ruff
       if: steps.check_code.outputs.code_exists == 'true'
-      run: ruff check . --select E,F,I,B,UP
+      run: ruff check . --config pyproject.toml
 
     - name: Type check with mypy
       if: steps.check_code.outputs.code_exists == 'true'
-      run: mypy . --show-error-codes --show-error-context
+      run: mypy . --config-file pyproject.toml --show-error-codes --show-error-context
 
     - name: No code found - skipping linting
       if: steps.check_code.outputs.code_exists == 'false'

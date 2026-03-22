@@ -47,11 +47,11 @@ jobs:
 
     - name: Security check with bandit
       if: steps.check_code.outputs.code_exists == 'true'
-      run: bandit -c pyproject.toml -r . --format json --output bandit-report.json || true
+      run: bandit -c pyproject.toml -r src tests --format json --output bandit-report.json || true
 
     - name: Display bandit results
       if: steps.check_code.outputs.code_exists == 'true'
-      run: bandit -c pyproject.toml -r . --format txt || true
+      run: bandit -c pyproject.toml -r src tests --format txt || true
 
     - name: No code found - skipping bandit
       if: steps.check_code.outputs.code_exists == 'false'

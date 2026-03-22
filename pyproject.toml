@@ -71,7 +71,7 @@ quote-style = "double"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "C901"]
-ignore = ["E101"]
+ignore = []
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10

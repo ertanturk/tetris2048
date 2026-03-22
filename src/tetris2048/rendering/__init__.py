@@ -13,13 +13,13 @@ def __getattr__(name: str) -> object:
 	"""Lazy load heavy dependencies (pygame-based modules).
 
 	Args:
-	    name: The attribute name being requested.
+		name: The attribute name being requested.
 
 	Returns:
-	    The requested module or symbol.
+		The requested module or symbol.
 
 	Raises:
-	    AttributeError: If the attribute doesn't exist.
+		AttributeError: If the attribute doesn't exist.
 	"""
 	if name == "Picture":
 		from tetris2048.rendering.picture import Picture

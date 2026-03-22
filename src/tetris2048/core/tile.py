@@ -40,10 +40,10 @@ class Tile:
 	"""Represents a numbered tile as in 2048 game.
 
 	Attributes:
-	    number (int): The number displayed on this tile.
-	    background_color: The background color of the tile.
-	    foreground_color: The color of the number text.
-	    box_color: The color of the tile border.
+		number (int): The number displayed on this tile.
+		background_color: The background color of the tile.
+		foreground_color: The color of the number text.
+		box_color: The color of the tile border.
 	"""
 
 	# Class variables shared among all Tile objects
@@ -63,8 +63,8 @@ class Tile:
 		"""Draw this tile at the given position.
 
 		Args:
-		    position: The center position where to draw the tile.
-		    length: The size of the tile. Defaults to 1.
+			position: The center position where to draw the tile.
+			length: The size of the tile. Defaults to 1.
 		"""
 		stddraw = _lazy_import_stddraw()
 		# Draw the tile as a filled square
@@ -87,7 +87,7 @@ class Tile:
 		"""Return the string representation of this tile.
 
 		Returns:
-		    A string showing the tile's number.
+			A string showing the tile's number.
 		"""
 		return str(self.number)
 
@@ -95,6 +95,6 @@ class Tile:
 		"""Return the representation of this tile.
 
 		Returns:
-		    A string representation suitable for debugging.
+			A string representation suitable for debugging.
 		"""
 		return f"Tile(number={self.number})"

@@ -6,6 +6,8 @@
   "editor.minimap.enabled": false,
   "editor.smoothScrolling": true,
   "editor.cursorStyle": "line",
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
   "editor.cursorBlinking": "smooth",
   "editor.selectionHighlight": true,
   "editor.renderLineHighlight": "line",
@@ -68,13 +70,15 @@
   // Ruff as the canonical Python formatter/linter
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
-    "editor.tabSize": 4,
-    "editor.insertSpaces": true,
+    "editor.tabSize": 8,
+    "editor.insertSpaces": false,
+    "editor.wordWrapColumn": 100,
     "editor.codeActionsOnSave": {
       "source.fixAll.ruff": "always",
       "source.organizeImports.ruff": "always"
     }
   },
+  "files.trimTrailingWhitespace": true,
   "workbench.editorAssociations": {
     "*.copilotmd": "vscode.markdown.preview.editor",
     "*.md": "markdownEditorOptimized.editor",

@@ -94,7 +94,7 @@ class GameEngine:
 		"""Create a new random tetromino.
 
 		Returns:
-		    A new Tetromino with a random shape.
+			A new Tetromino with a random shape.
 		"""
 		Tetromino = _lazy_import_tetromino()
 		tetromino_types = ["I", "O", "Z"]

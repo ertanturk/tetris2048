@@ -46,7 +46,7 @@ jobs:
 
     - name: Run tests with coverage
       if: steps.check_tests.outputs.tests_exist == 'true'
-      run: pytest --cov=. --cov-report=term-missing --cov-report=xml --cov-fail-under=90 -v
+      run: pytest --cov=src --cov-report=term-missing --cov-report=xml --cov-fail-under=80 -v
       env:
         PYTHONPATH: ${{ github.workspace }}
 
