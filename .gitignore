@@ -5,6 +5,9 @@
 .nfs*
 .DS_Store
 Thumbs.db
+.uv/
+.vscode/python_analysis_cache/
+.vscode/rope_cache/
 
 __pycache__/
 *.py[cod]
