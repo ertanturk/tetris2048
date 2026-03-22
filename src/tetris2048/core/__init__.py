@@ -9,17 +9,17 @@ from tetris2048.core.point import Point
 
 # Lazy load Tile to avoid importing heavy rendering dependencies
 def __getattr__(name: str) -> object:
-    """Lazy load Tile when accessed."""
-    if name == "Tile":
-        from tetris2048.core.tile import Tile
+	"""Lazy load Tile when accessed."""
+	if name == "Tile":
+		from tetris2048.core.tile import Tile
 
-        return Tile
-    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+		return Tile
+	raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
 def __dir__() -> list[str]:
-    """Return list of public attributes including lazy-loaded ones."""
-    return ["Point", "Tile"]
+	"""Return list of public attributes including lazy-loaded ones."""
+	return ["Point", "Tile"]
 
 
 __all__ = ["Point"]

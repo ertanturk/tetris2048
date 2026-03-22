@@ -11,172 +11,174 @@ import numpy as np
 from tetris2048.core import Point
 
 if TYPE_CHECKING:
-    from tetris2048.game.tetromino import Tetromino
+	from tetris2048.game.tetromino import Tetromino
 
 
 def _lazy_import_color() -> Any:
-    """Lazily import Color to avoid circular imports."""
-    from tetris2048.rendering.color import Color
+	"""Lazily import Color to avoid circular imports."""
+	from tetris2048.rendering.color import Color
 
-    return Color
+	return Color
 
 
 def _lazy_import_stddraw() -> Any:
-    """Lazily import stddraw to avoid circular imports."""
-    from tetris2048.rendering import stddraw
+	"""Lazily import stddraw to avoid circular imports."""
+	from tetris2048.rendering import stddraw
 
-    return stddraw
+	return stddraw
 
 
 class GameGrid:
-    """Represents the game grid for Tetris 2048.
+	"""Represents the game grid for Tetris 2048.
 
-    The grid manages the placement of tiles, tracks the current tetromino,
-    and handles drawing the game state to the display.
+	The grid manages the placement of tiles, tracks the current tetromino,
+	and handles drawing the game state to the display.
 
-    Attributes:
-        grid_height (int): The height of the grid in cells.
-        grid_width (int): The width of the grid in cells.
-        tile_matrix (np.ndarray): 2D matrix storing tiles or None for empty cells.
-        current_tetromino (Optional): The currently active tetromino.
-        game_over (bool): Whether the game has ended.
-    """
+	Attributes:
+	grid_height (int): The height of the grid in cells.
+	    grid_width (int): The width of the grid in cells.
+	    tile_matrix (np.ndarray): 2D matrix storing tiles or None for empty cells.
+	    current_tetromino (Optional): The currently active tetromino.
+	    game_over (bool): Whether the game has ended.
+	"""
 
-    def __init__(self, grid_h: int, grid_w: int) -> None:
-        """Initialize the game grid with given dimensions.
+	def __init__(self, grid_h: int, grid_w: int) -> None:
+		"""Initialize the game grid with given dimensions.
 
-        Args:
-            grid_h: The height of the grid in cells.
-            grid_w: The width of the grid in cells.
-        """
-        Color = _lazy_import_color()
-        self.grid_height = grid_h
-        self.grid_width = grid_w
-        # Create a tile matrix to store tiles locked on the game grid
-        self.tile_matrix: np.ndarray = np.full((grid_h, grid_w), None)
-        # The tetromino currently being moved
-        self.current_tetromino: Tetromino | None = None
-        # Game over flag
-        self.game_over = False
-        # Colors for display
-        self.empty_cell_color = Color(42, 69, 99)
-        self.line_color = Color(0, 100, 200)
-        self.boundary_color = Color(0, 100, 200)
-        # Thickness values for drawing
-        self.line_thickness = 0.002
-        self.box_thickness = 5 * self.line_thickness
+		Args:
+		    grid_h: The height of the grid in cells.
+		    grid_w: The width of the grid in cells.
+		"""
+		Color = _lazy_import_color()
+		self.grid_height = grid_h
+		self.grid_width = grid_w
+		# Create a tile matrix to store tiles locked on the game grid
+		self.tile_matrix: np.ndarray = np.full((grid_h, grid_w), None)
+		# The tetromino currently being moved
+		self.current_tetromino: Tetromino | None = None
+		# Game over flag
+		self.game_over = False
+		# Colors for display
+		self.empty_cell_color = Color(42, 69, 99)
+		self.line_color = Color(0, 100, 200)
+		self.boundary_color = Color(0, 100, 200)
+		# Thickness values for drawing
+		self.line_thickness = 0.002
+		self.box_thickness = 5 * self.line_thickness
 
-    def display(self) -> None:
-        """Display the game grid on the screen.
+	def display(self) -> None:
+		"""Display the game grid on the screen.
 
-        Clears the background, draws the grid, current tetromino,
-        and boundary box, then shows the result.
-        """
-        stddraw = _lazy_import_stddraw()
-        # Clear background
-        stddraw.clear(self.empty_cell_color)
-        # Draw the grid
-        self.draw_grid()
-        # Draw the current tetromino if it exists
-        if self.current_tetromino is not None:
-            self.current_tetromino.draw()
-        # Draw boundary box
-        self.draw_boundaries()
-        # Show with 500ms pause
-        stddraw.show(500)
+		Clears the background, draws the grid, current tetromino,
+		and boundary box, then shows the result.
+		"""
+		stddraw = _lazy_import_stddraw()
+		# Clear background
+		stddraw.clear(self.empty_cell_color)
+		# Draw the grid
+		self.draw_grid()
+		# Draw the current tetromino if it exists
+		if self.current_tetromino is not None:
+			self.current_tetromino.draw()
+		# Draw boundary box
+		self.draw_boundaries()
+		# Show with 500ms pause
+		stddraw.show(500)
 
-    def draw_grid(self) -> None:
-        """Draw the game grid cells and lines.
+	def draw_grid(self) -> None:
+		"""Draw the game grid cells and lines.
 
-        Draws all tiles in the grid and the lines separating cells.
-        """
-        stddraw = _lazy_import_stddraw()
-        # Draw each tile in the grid
-        for row in range(self.grid_height):
-            for col in range(self.grid_width):
-                if self.tile_matrix[row][col] is not None:
-                    self.tile_matrix[row][col].draw(Point(col, row))
+		Draws all tiles in the grid and the lines separating cells.
+		"""
+		stddraw = _lazy_import_stddraw()
+		# Draw each tile in the grid
+		for row in range(self.grid_height):
+			for col in range(self.grid_width):
+				if self.tile_matrix[row][col] is not None:
+					self.tile_matrix[row][col].draw(Point(col, row))
 
-        # Draw inner grid lines
-        stddraw.setPenColor(self.line_color)
-        stddraw.setPenRadius(self.line_thickness)
+		# Draw inner grid lines
+		stddraw.setPenColor(self.line_color)
+		stddraw.setPenRadius(self.line_thickness)
 
-        start_x, end_x = -0.5, self.grid_width - 0.5
-        start_y, end_y = -0.5, self.grid_height - 0.5
+		start_x, end_x = -0.5, self.grid_width - 0.5
+		start_y, end_y = -0.5, self.grid_height - 0.5
 
-        # Vertical lines
-        for x in np.arange(start_x + 1, end_x, 1):
-            stddraw.line(x, start_y, x, end_y)
+		# Vertical lines
+		for x in np.arange(start_x + 1, end_x, 1):
+			stddraw.line(x, start_y, x, end_y)
 
-        # Horizontal lines
-        for y in np.arange(start_y + 1, end_y, 1):
-            stddraw.line(start_x, y, end_x, y)
+		# Horizontal lines
+		for y in np.arange(start_y + 1, end_y, 1):
+			stddraw.line(start_x, y, end_x, y)
 
-        stddraw.setPenRadius()  # Reset pen radius
+		stddraw.setPenRadius()  # Reset pen radius
 
-    def draw_boundaries(self) -> None:
-        """Draw the boundary box around the game grid."""
-        stddraw = _lazy_import_stddraw()
-        stddraw.setPenColor(self.boundary_color)
-        stddraw.setPenRadius(self.box_thickness)
+	def draw_boundaries(self) -> None:
+		"""Draw the boundary box around the game grid."""
+		stddraw = _lazy_import_stddraw()
+		stddraw.setPenColor(self.boundary_color)
+		stddraw.setPenRadius(self.box_thickness)
 
-        pos_x, pos_y = -0.5, -0.5
-        stddraw.rectangle(pos_x, pos_y, self.grid_width, self.grid_height)
+		pos_x, pos_y = -0.5, -0.5
+		stddraw.rectangle(pos_x, pos_y, self.grid_width, self.grid_height)
 
-        stddraw.setPenRadius()  # Reset pen radius
+		stddraw.setPenRadius()  # Reset pen radius
 
-    def is_occupied(self, row: int, col: int) -> bool:
-        """Check if a grid cell is occupied by a tile.
+	def is_occupied(self, row: int, col: int) -> bool:
+		"""Check if a grid cell is occupied by a tile.
 
-        Args:
-            row: The row index of the cell.
-            col: The column index of the cell.
+		Args:
+		    row: The row index of the cell.
+		    col: The column index of the cell.
 
-        Returns:
-            True if the cell is occupied or outside the grid, False otherwise.
-        """
-        if not self.is_inside(row, col):
-            return False
-        return self.tile_matrix[row][col] is not None
+		Returns:
+		    True if the cell is occupied or outside the grid, False otherwise.
+		"""
+		if not self.is_inside(row, col):
+			return False
+		return self.tile_matrix[row][col] is not None
 
-    def is_inside(self, row: int, col: int) -> bool:
-        """Check if a position is within the game grid bounds.
+	def is_inside(self, row: int, col: int) -> bool:
+		"""Check if a position is within the game grid bounds.
 
-        Args:
-            row: The row index to check.
-            col: The column index to check.
+		Args:
+		    row: The row index to check.
+		    col: The column index to check.
 
-        Returns:
-            True if the position is inside the grid, False otherwise.
-        """
-        return 0 <= row < self.grid_height and 0 <= col < self.grid_width
+		Returns:
+		    True if the position is inside the grid, False otherwise.
+		"""
+		return 0 <= row < self.grid_height and 0 <= col < self.grid_width
 
-    def update_grid(self, tiles_to_lock: np.ndarray, blc_position: Point) -> bool:
-        """Lock tiles onto the grid after a tetromino lands.
+	def update_grid(self, tiles_to_lock: np.ndarray, blc_position: Point) -> bool:
+		"""Lock tiles onto the grid after a tetromino lands.
 
-        Args:
-            tiles_to_lock: The tile matrix of the landed tetromino.
-            blc_position: The bottom-left corner position of the tiles.
+		Args:
+		    tiles_to_lock: The tile matrix of the landed tetromino.
+		    blc_position: The bottom-left corner position of the tiles.
 
-        Returns:
-            True if the game is over, False otherwise.
-        """
-        self.current_tetromino = None
+		Returns:
+		    True if the game is over, False otherwise.
+		"""
+		self.current_tetromino = None
 
-        n_rows, n_cols = len(tiles_to_lock), len(tiles_to_lock[0])
+		n_rows, n_cols = len(tiles_to_lock), len(tiles_to_lock[0])
 
-        for col in range(n_cols):
-            for row in range(n_rows):
-                if tiles_to_lock[row][col] is not None:
-                    # Calculate position on game grid
-                    pos = Point()
-                    pos.x = blc_position.x + col
-                    pos.y = blc_position.y + (n_rows - 1) - row
+		for col in range(n_cols):
+			for row in range(n_rows):
+				if tiles_to_lock[row][col] is not None:
+					# Calculate position on game grid
+					pos = Point()
+					pos.x = blc_position.x + col
+					pos.y = blc_position.y + (n_rows - 1) - row
 
-                    if self.is_inside(pos.y, pos.x):
-                        self.tile_matrix[pos.y][pos.x] = tiles_to_lock[row][col]
-                    else:
-                        # Game over if any tile is above the grid
-                        self.game_over = True
+					if self.is_inside(pos.y, pos.x):
+						self.tile_matrix[pos.y][pos.x] = (
+							tiles_to_lock[row][col]
+						)
+					else:
+						# Game over if tile is above grid
+						self.game_over = True
 
-        return self.game_over
+		return self.game_over

@@ -5,65 +5,65 @@ The Color class represents an RGB color and provides standard color constants.
 
 
 class Color:
-    """An RGB color object.
+	"""An RGB color object.
 
-    Attributes:
-        r (int): The red component (0-255).
-        g (int): The green component (0-255).
-        b (int): The blue component (0-255).
-    """
+	Attributes:
+	    r (int): The red component (0-255).
+	    g (int): The green component (0-255).
+	    b (int): The blue component (0-255).
+	"""
 
-    def __init__(self, r: int = 0, g: int = 0, b: int = 0) -> None:
-        """Initialize a Color with RGB components.
+	def __init__(self, r: int = 0, g: int = 0, b: int = 0) -> None:
+		"""Initialize a Color with RGB components.
 
-        Args:
-            r: Red component (0-255). Defaults to 0.
-            g: Green component (0-255). Defaults to 0.
-            b: Blue component (0-255). Defaults to 0.
-        """
-        self._r = r
-        self._g = g
-        self._b = b
+		Args:
+		    r: Red component (0-255). Defaults to 0.
+		    g: Green component (0-255). Defaults to 0.
+		    b: Blue component (0-255). Defaults to 0.
+		"""
+		self._r = r
+		self._g = g
+		self._b = b
 
-    def getRed(self) -> int:
-        """Get the red component of this color.
+	def getRed(self) -> int:
+		"""Get the red component of this color.
 
-        Returns:
-            The red component value.
-        """
-        return self._r
+		Returns:
+		    The red component value.
+		"""
+		return self._r
 
-    def getGreen(self) -> int:
-        """Get the green component of this color.
+	def getGreen(self) -> int:
+		"""Get the green component of this color.
 
-        Returns:
-            The green component value.
-        """
-        return self._g
+		Returns:
+		    The green component value.
+		"""
+		return self._g
 
-    def getBlue(self) -> int:
-        """Get the blue component of this color.
+	def getBlue(self) -> int:
+		"""Get the blue component of this color.
 
-        Returns:
-            The blue component value.
-        """
-        return self._b
+		Returns:
+		    The blue component value.
+		"""
+		return self._b
 
-    def __str__(self) -> str:
-        """Return the string representation of this color.
+	def __str__(self) -> str:
+		"""Return the string representation of this color.
 
-        Returns:
-            A string in the format '(r, g, b)'.
-        """
-        return f"({self._r}, {self._g}, {self._b})"
+		Returns:
+		    A string in the format '(r, g, b)'.
+		"""
+		return f"({self._r}, {self._g}, {self._b})"
 
-    def __repr__(self) -> str:
-        """Return the representation of this color.
+	def __repr__(self) -> str:
+		"""Return the representation of this color.
 
-        Returns:
-            A string representation suitable for debugging.
-        """
-        return f"Color({self._r}, {self._g}, {self._b})"
+		Returns:
+		    A string representation suitable for debugging.
+		"""
+		return f"Color({self._r}, {self._g}, {self._b})"
 
 
 # Standard color constants

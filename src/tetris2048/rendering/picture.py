@@ -21,81 +21,81 @@ _DEFAULT_HEIGHT = 512
 
 
 class Picture:
-    """
-    A Picture object models an image.  It is initialized such that
-    it has a given width and height and contains all black pixels.
-    Subsequently you can load an image from a given JPG or PNG file.
-    """
+	"""
+	A Picture object models an image.  It is initialized such that
+	it has a given width and height and contains all black pixels.
+	Subsequently you can load an image from a given JPG or PNG file.
+	"""
 
-    _surface: Any
+	_surface: Any
 
-    def __init__(self, arg1: Any = None, arg2: Any = None) -> None:
-        """
-        If both arg1 and arg2 are None, then construct self such that
-        it is all black with _DEFAULT_WIDTH and height _DEFAULT_HEIGHT.
-        If arg1 is not None and arg2 is None, then construct self by
-        reading from the file whose name is arg1.
-        If neither arg1 nor arg2 is None, then construct self such that
-        it is all black with width arg1 and and height arg2.
-        """
-        if (arg1 is None) and (arg2 is None):
-            maxW = _DEFAULT_WIDTH
-            maxH = _DEFAULT_HEIGHT
-            self._surface = pygame.Surface((maxW, maxH))
-            self._surface.fill((0, 0, 0))
-        elif (arg1 is not None) and (arg2 is None):
-            fileName = arg1
-            try:
-                self._surface = pygame.image.load(fileName)
-            except pygame.error as err:
-                raise OSError() from err
-        elif (arg1 is not None) and (arg2 is not None):
-            maxW = arg1
-            maxH = arg2
-            self._surface = pygame.Surface((maxW, maxH))
-            self._surface.fill((0, 0, 0))
-        else:
-            raise ValueError()
+	def __init__(self, arg1: Any = None, arg2: Any = None) -> None:
+		"""
+		If both arg1 and arg2 are None, then construct self such that
+		it is all black with _DEFAULT_WIDTH and height _DEFAULT_HEIGHT.
+		If arg1 is not None and arg2 is None, then construct self by
+		reading from the file whose name is arg1.
+		If neither arg1 nor arg2 is None, then construct self such that
+		it is all black with width arg1 and and height arg2.
+		"""
+		if (arg1 is None) and (arg2 is None):
+			maxW = _DEFAULT_WIDTH
+			maxH = _DEFAULT_HEIGHT
+			self._surface = pygame.Surface((maxW, maxH))
+			self._surface.fill((0, 0, 0))
+		elif (arg1 is not None) and (arg2 is None):
+			fileName = arg1
+			try:
+				self._surface = pygame.image.load(fileName)
+			except pygame.error as err:
+				raise OSError() from err
+		elif (arg1 is not None) and (arg2 is not None):
+			maxW = arg1
+			maxH = arg2
+			self._surface = pygame.Surface((maxW, maxH))
+			self._surface.fill((0, 0, 0))
+		else:
+			raise ValueError()
 
-    # -------------------------------------------------------------------
+	# -------------------------------------------------------------------
 
-    def save(self, f: str) -> None:
-        """
-        Save self to the file whose name is f.
-        """
+	def save(self, f: str) -> None:
+		"""
+		Save self to the file whose name is f.
+		"""
 
-        pygame.image.save(self._surface, f)
+		pygame.image.save(self._surface, f)
 
-    # -------------------------------------------------------------------
+	# -------------------------------------------------------------------
 
-    def width(self) -> int:
-        """
-        Return the width of self.
-        """
-        return int(self._surface.get_width())
+	def width(self) -> int:
+		"""
+		Return the width of self.
+		"""
+		return int(self._surface.get_width())
 
-    # -------------------------------------------------------------------
+	# -------------------------------------------------------------------
 
-    def height(self) -> int:
-        """
-        Return the height of self.
-        """
-        return int(self._surface.get_height())
+	def height(self) -> int:
+		"""
+		Return the height of self.
+		"""
+		return int(self._surface.get_height())
 
-    # -------------------------------------------------------------------
+	# -------------------------------------------------------------------
 
-    def get(self, x: int, y: int) -> Any:
-        """
-        Return the color of self at location (x, y).
-        """
-        pygameColor = self._surface.get_at((x, y))
-        return color.Color(pygameColor.r, pygameColor.g, pygameColor.b)
+	def get(self, x: int, y: int) -> Any:
+		"""
+		Return the color of self at location (x, y).
+		"""
+		pygameColor = self._surface.get_at((x, y))
+		return color.Color(pygameColor.r, pygameColor.g, pygameColor.b)
 
-    # -------------------------------------------------------------------
+	# -------------------------------------------------------------------
 
-    def set(self, x: int, y: int, c: Any) -> None:
-        """
-        Set the color of self at location (x, y) to c.
-        """
-        pygameColor = pygame.Color(c.getRed(), c.getGreen(), c.getBlue(), 0)
-        self._surface.set_at((x, y), pygameColor)
+	def set(self, x: int, y: int, c: Any) -> None:
+		"""
+		Set the color of self at location (x, y) to c.
+		"""
+		pygameColor = pygame.Color(c.getRed(), c.getGreen(), c.getBlue(), 0)
+		self._surface.set_at((x, y), pygameColor)

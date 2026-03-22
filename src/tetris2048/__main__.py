@@ -7,4 +7,4 @@ This module allows the game to be run as a module:
 from tetris2048.game.game_engine import main
 
 if __name__ == "__main__":
-    main()
+	main()
