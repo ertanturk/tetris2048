@@ -16,14 +16,14 @@ if TYPE_CHECKING:
 
 def _lazy_import_color() -> Any:
 	"""Lazily import Color to avoid circular imports."""
-	from tetris2048.rendering.color import Color
+	from tetris2048.rendering.color import Color  # noqa: PLC0415
 
 	return Color
 
 
 def _lazy_import_stddraw() -> Any:
 	"""Lazily import stddraw to avoid circular imports."""
-	from tetris2048.rendering import stddraw
+	from tetris2048.rendering import stddraw  # noqa: PLC0415
 
 	return stddraw
 

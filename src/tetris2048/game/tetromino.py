@@ -6,7 +6,7 @@ A Tetromino is a game piece composed of four tiles arranged in various shapes
 
 import copy as cp
 import random
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
 
@@ -32,7 +32,7 @@ class Tetromino:
 	"""
 
 	# Standard Tetromino shapes
-	SHAPES = {
+	SHAPES: ClassVar[dict[str, list[tuple[int, int]]]] = {
 		"I": [(1, 0), (1, 1), (1, 2), (1, 3)],
 		"O": [(0, 0), (0, 1), (1, 0), (1, 1)],
 		"Z": [(0, 1), (1, 1), (1, 2), (2, 2)],

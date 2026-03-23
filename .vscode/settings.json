@@ -70,6 +70,7 @@
   // Ruff as the canonical Python formatter/linter
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.detectIndentation": false,
     "editor.tabSize": 8,
     "editor.insertSpaces": false,
     "editor.wordWrapColumn": 100,

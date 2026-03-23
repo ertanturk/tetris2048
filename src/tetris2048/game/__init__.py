@@ -8,4 +8,4 @@ from tetris2048.game.game_engine import GameEngine
 from tetris2048.game.game_grid import GameGrid
 from tetris2048.game.tetromino import Tetromino
 
-__all__ = ["GameGrid", "Tetromino", "GameEngine"]
+__all__ = ["GameEngine", "GameGrid", "Tetromino"]

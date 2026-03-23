@@ -22,7 +22,7 @@ def __getattr__(name: str) -> object:
 		AttributeError: If the attribute doesn't exist.
 	"""
 	if name == "Picture":
-		from tetris2048.rendering.picture import Picture
+		from tetris2048.rendering.picture import Picture  # noqa: PLC0415
 
 		return Picture
 	if name == "stddraw":

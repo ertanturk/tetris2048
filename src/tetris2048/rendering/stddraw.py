@@ -5,6 +5,7 @@ including shapes, text, colors, and interactive input handling.
 """
 
 import os
+import subprocess as _subprocess  # nosec B404
 import sys
 import time
 from typing import Any
@@ -51,6 +52,10 @@ _DEFAULT_PEN_COLOR = BLACK
 
 _DEFAULT_FONT_FAMILY = "Helvetica"
 _DEFAULT_FONT_SIZE = 12
+
+# Mouse button constants
+_RIGHT_MOUSE_BUTTON = 3
+_LEFT_MOUSE_BUTTON = 1
 
 _xmin: float = _DEFAULT_XMIN
 _ymin: float = _DEFAULT_YMIN
@@ -156,11 +161,11 @@ def setCanvasSize(w: int = _DEFAULT_CANVAS_SIZE, h: int = _DEFAULT_CANVAS_SIZE) 
 	Calling this function is optional. If you call it, you must do
 	so before calling any drawing function.
 	"""
-	global _background
-	global _surface
-	global _canvasWidth
-	global _canvasHeight
-	global _windowCreated
+	global _background  # noqa: PLW0603
+	global _surface  # noqa: PLW0603
+	global _canvasWidth  # noqa: PLW0603
+	global _canvasHeight  # noqa: PLW0603
+	global _windowCreated  # noqa: PLW0603
 
 	if _windowCreated:
 		raise Exception("The stddraw window already was created")
@@ -182,8 +187,8 @@ def setXscale(min: float = _DEFAULT_XMIN, max: float = _DEFAULT_XMAX) -> None:
 	Set the x-scale of the canvas such that the minimum x value
 	is min and the maximum x value is max.
 	"""
-	global _xmin
-	global _xmax
+	global _xmin  # noqa: PLW0603
+	global _xmax  # noqa: PLW0603
 	min = float(min)
 	max = float(max)
 	if min >= max:
@@ -198,8 +203,8 @@ def setYscale(min: float = _DEFAULT_YMIN, max: float = _DEFAULT_YMAX) -> None:
 	Set the y-scale of the canvas such that the minimum y value
 	is min and the maximum y value is max.
 	"""
-	global _ymin
-	global _ymax
+	global _ymin  # noqa: PLW0603
+	global _ymax  # noqa: PLW0603
 	min = float(min)
 	max = float(max)
 	if min >= max:
@@ -216,7 +221,7 @@ def setPenRadius(r: float = _DEFAULT_PEN_RADIUS) -> None:
 	the minimum possible radius and lines with the minimum possible
 	width.
 	"""
-	global _penRadius
+	global _penRadius  # noqa: PLW0603
 	r = float(r)
 	if r < 0.0:
 		raise Exception("Argument to setPenRadius() must be non-neg")
@@ -228,7 +233,7 @@ def setPenColor(c: Any = _DEFAULT_PEN_COLOR) -> None:
 	Set the pen color to c, where c is an object of class color.Color.
 	c defaults to stddraw.BLACK.
 	"""
-	global _penColor
+	global _penColor  # noqa: PLW0603
 	_penColor = c
 
 
@@ -236,7 +241,7 @@ def setFontFamily(f: str = _DEFAULT_FONT_FAMILY) -> None:
 	"""
 	Set the font family to f (e.g. 'Helvetica' or 'Courier').
 	"""
-	global _fontFamily
+	global _fontFamily  # noqa: PLW0603
 	_fontFamily = f
 
 
@@ -244,7 +249,7 @@ def setFontSize(s: int = _DEFAULT_FONT_SIZE) -> None:
 	"""
 	Set the font size to s (e.g. 12 or 16).
 	"""
-	global _fontSize
+	global _fontSize  # noqa: PLW0603
 	_fontSize = s
 
 
@@ -253,7 +258,7 @@ def setFontSize(s: int = _DEFAULT_FONT_SIZE) -> None:
 
 def _makeSureWindowCreated() -> None:
 	"""Ensure the pygame window has been created."""
-	global _windowCreated
+	global _windowCreated  # noqa: PLW0603
 	if not _windowCreated:
 		setCanvasSize()
 		_windowCreated = True
@@ -273,8 +278,8 @@ def _pixel(x: float, y: float) -> None:
 	xy = _scaleY(y)
 	pygame.gfxdraw.pixel(
 		_surface,
-		int(round(xs)),
-		int(round(xy)),
+		round(xs),
+		round(xy),
 		_pygameColor(_penColor),
 	)
 
@@ -329,7 +334,7 @@ def line(x0: float, y0: float, x1: float, y1: float) -> None:
 		_pygameColor(_penColor),
 		(x0s, y0s),
 		(x1s, y1s),
-		int(round(lineWidth)),
+		round(lineWidth),
 	)
 
 
@@ -354,7 +359,7 @@ def circle(x: float, y: float, r: float) -> None:
 			_surface,
 			_pygameColor(_penColor),
 			pygame.Rect(xs - ws / 2.0, ys - hs / 2.0, ws, hs),
-			int(round(_penRadius)),
+			round(_penRadius),
 		)
 
 
@@ -388,7 +393,7 @@ def rectangle(x: float, y: float, w: float, h: float) -> None:
 	Draw on the background canvas a rectangle of width w and height h
 	whose lower left point is (x, y).
 	"""
-	global _surface
+	global _surface  # noqa: PLW0602
 	_makeSureWindowCreated()
 	x = float(x)
 	y = float(y)
@@ -406,7 +411,7 @@ def rectangle(x: float, y: float, w: float, h: float) -> None:
 			_surface,
 			_pygameColor(_penColor),
 			pygame.Rect(xs, ys - hs, ws, hs),
-			int(round(_penRadius)),
+			round(_penRadius),
 		)
 
 
@@ -415,7 +420,7 @@ def filledRectangle(x: float, y: float, w: float, h: float) -> None:
 	Draw on the background canvas a filled rectangle of width w and
 	height h whose lower left point is (x, y).
 	"""
-	global _surface
+	global _surface  # noqa: PLW0602
 	_makeSureWindowCreated()
 	x = float(x)
 	y = float(y)
@@ -460,7 +465,7 @@ def polygon(x: list[float], y: list[float]) -> None:
 	Draw on the background canvas a polygon with coordinates
 	(x[i], y[i]).
 	"""
-	global _surface
+	global _surface  # noqa: PLW0602
 	_makeSureWindowCreated()
 	# Scale X and Y values.
 	xScaled = []
@@ -477,7 +482,7 @@ def polygon(x: list[float], y: list[float]) -> None:
 		_surface,
 		_pygameColor(_penColor),
 		points,
-		int(round(_penRadius)),
+		round(_penRadius),
 	)
 
 
@@ -486,7 +491,7 @@ def filledPolygon(x: list[float], y: list[float]) -> None:
 	Draw on the background canvas a filled polygon with coordinates
 	(x[i], y[i]).
 	"""
-	global _surface
+	global _surface  # noqa: PLW0602
 	_makeSureWindowCreated()
 	# Scale X and Y values.
 	xScaled = []
@@ -538,7 +543,7 @@ def picture(pic: Any, x: float | None = None, y: float | None = None) -> None:
 	object of class picture.Picture. x and y default to the midpoint
 	of the background canvas.
 	"""
-	global _surface
+	global _surface  # noqa: PLW0602
 	_makeSureWindowCreated()
 	# By default, draw pic at the middle of the surface.
 	if x is None:
@@ -646,17 +651,15 @@ def _saveToFile() -> None:
 	incompatible with Pygame. So the dialog boxes must be displayed
 	from child processes.
 	"""
-	import subprocess  # noqa: B404, S404  # nosec B404
-
 	_makeSureWindowCreated()
 
 	stddrawPath = os.path.realpath(__file__)
 
-	childProcess = subprocess.Popen(  # noqa: B603, S603  # nosec B603
+	childProcess = _subprocess.Popen(  # nosec B603
 		[sys.executable, stddrawPath, "getFileName"],
-		stdout=subprocess.PIPE,
+		stdout=_subprocess.PIPE,
 	)
-	so, se = childProcess.communicate()
+	so, _se = childProcess.communicate()
 	fileName_raw = so.strip() if so is not None else b""
 
 	# Convert subprocess output to a string in all cases.
@@ -672,7 +675,7 @@ def _saveToFile() -> None:
 		return
 
 	if not fileName.endswith((".jpg", ".png")):
-		childProcess = subprocess.Popen(  # noqa: B603, S603  # nosec B603
+		childProcess = _subprocess.Popen(  # nosec B603
 			[
 				sys.executable,
 				stddrawPath,
@@ -684,11 +687,11 @@ def _saveToFile() -> None:
 
 	try:
 		save(fileName)
-		childProcess = subprocess.Popen(  # noqa: B603, S603  # nosec B603
+		childProcess = _subprocess.Popen(  # nosec B603
 			[sys.executable, stddrawPath, "confirmFileSave"],
 		)
 	except pygame.error as e:
-		childProcess = subprocess.Popen(  # noqa: B603, S603  # nosec B603
+		childProcess = _subprocess.Popen(  # nosec B603
 			[
 				sys.executable,
 				stddrawPath,
@@ -703,14 +706,14 @@ def _checkForEvents() -> None:
 	Check if any new event has occured (such as a key typed or button
 	pressed).  If a key has been typed, then put that key in a queue.
 	"""
-	global _surface
-	global _keysTyped
+	global _surface  # noqa: PLW0602
+	global _keysTyped  # noqa: PLW0603
 
 	# -------------------------------------------------------------------
 	# Begin added by Alan J. Broder
 	# -------------------------------------------------------------------
-	global _mousePos
-	global _mousePressed
+	global _mousePos  # noqa: PLW0603
+	global _mousePressed  # noqa: PLW0603
 	# -------------------------------------------------------------------
 	# End added by Alan J. Broder
 	# -------------------------------------------------------------------
@@ -721,8 +724,10 @@ def _checkForEvents() -> None:
 		if event.type == pygame.QUIT:
 			sys.exit()
 		elif event.type == pygame.KEYDOWN:
-			_keysTyped = [pygame.key.name(event.key)] + _keysTyped
-		elif (event.type == pygame.MOUSEBUTTONUP) and (event.button == 3):
+			_keysTyped = [pygame.key.name(event.key), *_keysTyped]
+		elif (event.type == pygame.MOUSEBUTTONUP) and (
+			event.button == _RIGHT_MOUSE_BUTTON
+		):
 			_saveToFile()
 
 		# ---------------------------------------------------------------
@@ -748,7 +753,7 @@ def hasNextKeyTyped() -> bool:
 	Return True if the queue of the keys the user typed is not empty.
 	Otherwise return False.
 	"""
-	global _keysTyped
+	global _keysTyped  # noqa: PLW0602
 	return _keysTyped != []
 
 
@@ -757,7 +762,7 @@ def nextKeyTyped() -> str:
 	Remove the first key from the queue of the keys that the user typed,
 	and return that key.
 	"""
-	global _keysTyped
+	global _keysTyped  # noqa: PLW0602
 	return _keysTyped.pop()
 
 
@@ -765,7 +770,7 @@ def clearKeysTyped() -> None:
 	"""
 	Clear all the keys in the queue of the keys that the user typed.
 	"""
-	global _keysTyped
+	global _keysTyped  # noqa: PLW0603
 	_keysTyped = []
 
 
@@ -781,7 +786,7 @@ def mousePressed() -> bool:
 	Return True if the mouse has been left-clicked since the
 	last time mousePressed was called, and False otherwise.
 	"""
-	global _mousePressed
+	global _mousePressed  # noqa: PLW0603
 	if _mousePressed:
 		_mousePressed = False
 		return True
@@ -795,7 +800,7 @@ def mouseX() -> float:
 	hasn't happened yet, raise an exception, since mouseX() shouldn't
 	be called until mousePressed() returns True.
 	"""
-	global _mousePos
+	global _mousePos  # noqa: PLW0602
 	if _mousePos:
 		return _userX(_mousePos[0])
 	raise Exception("Can't determine mouse position if a click hasn't happened")
@@ -808,7 +813,7 @@ def mouseY() -> float:
 	hasn't happened yet, raise an exception, since mouseY() shouldn't
 	be called until mousePressed() returns True.
 	"""
-	global _mousePos
+	global _mousePos  # noqa: PLW0602
 	if _mousePos:
 		return _userY(_mousePos[1])
 	raise Exception("Can't determine mouse position if a click hasn't happened")
@@ -871,7 +876,7 @@ def _reportFileSaveError(msg: str) -> None:
 # -----------------------------------------------------------------------
 
 
-def _regressionTest() -> None:
+def _regressionTest() -> None:  # noqa: PLR0915
 	"""
 	Perform regression testing.
 	"""
@@ -997,7 +1002,7 @@ def _main() -> None:
 	Dispatch to a function that does regression testing, or to a
 	dialog-box-handling function.
 	"""
-	import sys
+	import sys  # noqa: PLC0415
 
 	if len(sys.argv) == 1:
 		_regressionTest()

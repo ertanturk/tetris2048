@@ -18,35 +18,35 @@ if TYPE_CHECKING:
 
 def _lazy_import_game_grid() -> type["GameGrid"]:
 	"""Lazily import GameGrid to avoid circular imports."""
-	from tetris2048.game.game_grid import GameGrid
+	from tetris2048.game.game_grid import GameGrid  # noqa: PLC0415
 
 	return GameGrid
 
 
 def _lazy_import_tetromino() -> type["Tetromino"]:
 	"""Lazily import Tetromino to avoid circular imports."""
-	from tetris2048.game.tetromino import Tetromino
+	from tetris2048.game.tetromino import Tetromino  # noqa: PLC0415
 
 	return Tetromino
 
 
 def _lazy_import_color() -> type["Color"]:
 	"""Lazily import Color to avoid circular imports."""
-	from tetris2048.rendering.color import Color
+	from tetris2048.rendering.color import Color  # noqa: PLC0415
 
 	return Color
 
 
 def _lazy_import_picture() -> type["Picture"]:
 	"""Lazily import Picture to avoid circular imports."""
-	from tetris2048.rendering.picture import Picture
+	from tetris2048.rendering.picture import Picture  # noqa: PLC0415
 
 	return Picture
 
 
 def _lazy_import_stddraw() -> types.ModuleType:
 	"""Lazily import stddraw to avoid circular imports."""
-	from tetris2048.rendering import stddraw
+	from tetris2048.rendering import stddraw  # noqa: PLC0415
 
 	return stddraw
 

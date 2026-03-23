@@ -13,7 +13,7 @@ __email__ = "turke@mef.edu.tr"
 def __getattr__(name: str) -> object:
 	"""Lazy load GameEngine when accessed."""
 	if name == "GameEngine":
-		from tetris2048.game import GameEngine
+		from tetris2048.game import GameEngine  # noqa: PLC0415
 
 		return GameEngine
 	raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

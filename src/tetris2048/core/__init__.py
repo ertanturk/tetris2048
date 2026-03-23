@@ -11,7 +11,7 @@ from tetris2048.core.point import Point
 def __getattr__(name: str) -> object:
 	"""Lazy load Tile when accessed."""
 	if name == "Tile":
-		from tetris2048.core.tile import Tile
+		from tetris2048.core.tile import Tile  # noqa: PLC0415
 
 		return Tile
 	raise AttributeError(f"module '{__name__}' has no attribute '{name}'")

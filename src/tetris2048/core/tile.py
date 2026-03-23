@@ -18,9 +18,9 @@ _cached_stddraw: Any = None
 
 def _lazy_import_color() -> Any:
 	"""Lazily import Color to avoid circular imports."""
-	global _cached_color
+	global _cached_color  # noqa: PLW0603
 	if _cached_color is None:
-		from tetris2048.rendering.color import Color as _Color
+		from tetris2048.rendering.color import Color as _Color  # noqa: PLC0415
 
 		_cached_color = _Color
 	return _cached_color
@@ -28,9 +28,9 @@ def _lazy_import_color() -> Any:
 
 def _lazy_import_stddraw() -> Any:
 	"""Lazily import stddraw to avoid circular imports."""
-	global _cached_stddraw
+	global _cached_stddraw  # noqa: PLW0603
 	if _cached_stddraw is None:
-		from tetris2048.rendering import stddraw as _stddraw
+		from tetris2048.rendering import stddraw as _stddraw  # noqa: PLC0415
 
 		_cached_stddraw = _stddraw
 	return _cached_stddraw

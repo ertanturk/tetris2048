@@ -70,7 +70,7 @@ indent-style = "tab"
 quote-style = "double"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "C901"]
+select = ["E", "F", "I", "B", "UP", "C901", "SIM", "PL", "RUF"]
 ignore = []
 
 [tool.ruff.lint.mccabe]
@@ -79,6 +79,8 @@ max-complexity = 10
 [tool.mypy]
 python_version = "3.12"
 strict = true
+warn_unused_ignores = true
+warn_return_any = true
 exclude = ["build/", "\\.venv/"]
 
 [tool.pytest.ini_options]
