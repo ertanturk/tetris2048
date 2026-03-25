@@ -234,7 +234,7 @@ def setPenRadius(r: float = _DEFAULT_PEN_RADIUS) -> None:
 	_penRadius = r * float(_DEFAULT_CANVAS_SIZE)
 
 
-def setPenColor(c: Color.Color = _DEFAULT_PEN_COLOR) -> None:
+def setPenColor(c: Color = _DEFAULT_PEN_COLOR) -> None:
 	"""Set the pen color to c, where c is an object of class color.Color.
 	c defaults to stddraw.BLACK.
 	"""
@@ -531,7 +531,7 @@ def picture(pic: Any, x: float | None = None, y: float | None = None) -> None:  
 	_surface.blit(picSurface, [xs - ws / 2.0, ys - hs / 2.0, ws, hs])
 
 
-def clear(c: Color.Color = WHITE) -> None:
+def clear(c: Color = WHITE) -> None:
 	"""Clear the background canvas to color c, where c is an
 	object of class color.Color. c defaults to stddraw.WHITE.
 	"""

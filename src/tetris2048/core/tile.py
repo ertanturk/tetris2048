@@ -8,28 +8,23 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from tetris2048.rendering import stddraw
+from tetris2048.rendering.color import Color
+
 if TYPE_CHECKING:
 	from tetris2048.core.point import Point
-	from tetris2048.rendering import stddraw as stddraw_module
-	from tetris2048.rendering.color import Color
 
 
 def _lazy_import_color() -> type[Color]:
-	"""Lazily import Color to avoid circular imports."""
-	if not hasattr(_lazy_import_color, "_cached"):
-		from tetris2048.rendering.color import Color as _Color
+	"""Return the `Color` class (top-level import).
 
-		_lazy_import_color._cached = _Color
-	return _lazy_import_color._cached
+	Kept as a function for API compatibility with earlier lazy loader.
+	"""
+	return Color
 
 
-def _lazy_import_stddraw() -> stddraw_module:
-	"""Lazily import stddraw to avoid circular imports."""
-	if not hasattr(_lazy_import_stddraw, "_cached"):
-		from tetris2048.rendering import stddraw as _stddraw
-
-		_lazy_import_stddraw._cached = _stddraw
-	return _lazy_import_stddraw._cached
+# `stddraw` is imported at module level and used at runtime.
+# We avoid using a module object as a type in annotations.
 
 
 class Tile:
@@ -62,7 +57,6 @@ class Tile:
 			position: The center position where to draw the tile.
 			length: The size of the tile. Defaults to 1.
 		"""
-		stddraw = _lazy_import_stddraw()
 		# Draw the tile as a filled square
 		stddraw.setPenColor(self.background_color)
 		stddraw.filledSquare(position.x, position.y, length / 2)

@@ -46,13 +46,18 @@ class Picture:
 			max_h = _DEFAULT_HEIGHT
 			self._surface = pygame.Surface((max_w, max_h))
 			self._surface.fill((0, 0, 0))
-		elif (arg1 is not None) and (arg2 is None):
+		elif (arg1 is not None) and (arg2 is None) and isinstance(arg1, str):
 			file_name = arg1
 			try:
 				self._surface = pygame.image.load(file_name)
 			except pygame.error as err:
 				raise OSError from err
-		elif (arg1 is not None) and (arg2 is not None):
+		elif (
+			(arg1 is not None)
+			and (arg2 is not None)
+			and isinstance(arg1, int)
+			and isinstance(arg2, int)
+		):
 			max_w = arg1
 			max_h = arg2
 			self._surface = pygame.Surface((max_w, max_h))

@@ -11,29 +11,11 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from tetris2048.core.point import Point
+from tetris2048.rendering import stddraw
+from tetris2048.rendering.color import Color
 
 if TYPE_CHECKING:
 	from tetris2048.game.tetromino import Tetromino
-	from tetris2048.rendering import stddraw as stddraw_module
-	from tetris2048.rendering.color import Color
-
-
-def _lazy_import_color() -> Color:
-	"""Lazily import Color to avoid circular imports."""
-	if not hasattr(_lazy_import_color, "_cached"):
-		from tetris2048.rendering.color import Color as _Color  # noqa: PLC0415
-
-		_lazy_import_color._cached = _Color  # noqa: SLF001
-	return _lazy_import_color._cached  # noqa: SLF001
-
-
-def _lazy_import_stddraw() -> stddraw_module:
-	"""Lazily import stddraw to avoid circular imports."""
-	if not hasattr(_lazy_import_stddraw, "_cached"):
-		from tetris2048.rendering import stddraw as _stddraw  # noqa: PLC0415
-
-		_lazy_import_stddraw._cached = _stddraw  # noqa: SLF001
-	return _lazy_import_stddraw._cached  # noqa: SLF001
 
 
 class GameGrid:
@@ -58,7 +40,7 @@ class GameGrid:
 			grid_h: The height of the grid in cells.
 			grid_w: The width of the grid in cells.
 		"""
-		color_class = _lazy_import_color()
+		color_class = Color
 		self.grid_height = grid_h
 		self.grid_width = grid_w
 		# Create a tile matrix to store tiles locked on the game grid
@@ -81,7 +63,6 @@ class GameGrid:
 		Clears the background, draws the grid, current tetromino,
 		and boundary box, then shows the result.
 		"""
-		stddraw = _lazy_import_stddraw()
 		# Clear background
 		stddraw.clear(self.empty_cell_color)
 		# Draw the grid
@@ -99,7 +80,6 @@ class GameGrid:
 
 		Draws all tiles in the grid and the lines separating cells.
 		"""
-		stddraw = _lazy_import_stddraw()
 		# Draw each tile in the grid
 		for row in range(self.grid_height):
 			for col in range(self.grid_width):
@@ -125,7 +105,6 @@ class GameGrid:
 
 	def draw_boundaries(self) -> None:
 		"""Draw the boundary box around the game grid."""
-		stddraw = _lazy_import_stddraw()
 		stddraw.setPenColor(self.boundary_color)
 		stddraw.setPenRadius(self.box_thickness)
 
