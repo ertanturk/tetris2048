@@ -1,26 +1,73 @@
 {
-  // Shared workspace defaults for consistent team experience
+  // ================= UI =================
+  "workbench.activityBar.location": "top",
+  "workbench.tree.indent": 16,
+  "workbench.statusBar.visible": true,
+  "workbench.editor.tabSizing": "shrink",
+  "workbench.editor.showIcons": true,
+  "zenMode.centerLayout": true,
+  "workbench.editor.decorations.badges": false,
+  "workbench.editor.highlightModifiedTabs": false,
+  "window.title": "${activeEditorShort}",
+  "editor.minimap.enabled": false,
+  "editor.cursorStyle": "line",
+  "editor.cursorBlinking": "solid",
+  "editor.selectionHighlight": true,
+  "editor.folding": false,
+  "editor.stickyScroll.enabled": false,
+  "editor.renderLineHighlight": "line",
+  "editor.cursorSmoothCaretAnimation": "off",
+  "editor.matchBrackets": "near",
+  "editor.wordWrap": "off",
+  "workbench.reduceMotion": "on",
+  "workbench.editor.showTabs": "none",
+  "workbench.editor.labelFormat": "short",
+  "editor.occurrencesHighlight": "off",
+  "editor.colorDecorators": false,
+  "editor.guides.indentation": false,
+  "editor.guides.bracketPairs": false,
+  // ================= Terminal =================
+  "terminal.integrated.defaultProfile.windows": "Ubuntu",
+  "terminal.integrated.enablePersistentSessions": false,
+  "terminal.integrated.persistentSessionReviveProcess": "never",
+  "terminal.integrated.shellIntegration.enabled": true,
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.fontWeight": "normal",
+  "terminal.integrated.drawBoldTextInBrightColors": true,
+  "terminal.integrated.fontFamily": "Cascadia Code",
+  "terminal.integrated.gpuAcceleration": "on",
+  "terminal.integrated.scrollback": 1500,
+  "terminal.integrated.copyOnSelection": true,
+  "terminal.integrated.profiles.windows": {
+    "Ubuntu": {
+      "path": "C:\\Windows\\System32\\wsl.exe"
+    }
+  },
+  // ================= Editor Core =================
+  "editor.fontLigatures": false,
+  "editor.smoothScrolling": false,
+  "workbench.list.smoothScrolling": false,
+  "workbench.settings.enableNaturalLanguageSearch": false,
+  "editor.fontFamily": "Cascadia Code",
+  "editor.fontWeight": "400",
+  "editor.fontSize": 16,
+  "editor.letterSpacing": 0.5,
+  "editor.lineHeight": 1.6,
   "editor.formatOnSave": true,
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
-  "editor.minimap.enabled": false,
-  "editor.smoothScrolling": true,
-  "editor.cursorStyle": "line",
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
-  "editor.cursorBlinking": "smooth",
-  "editor.selectionHighlight": true,
-  "editor.renderLineHighlight": "line",
-  "editor.wordWrap": "off",
-  // Keep repository clean and IDE fast
-  "files.exclude": {
-    "**/.git": true,
-    "**/__pycache__": true,
-    "**/.mypy_cache": true,
-    "**/.ruff_cache": true,
-    "**/.pytest_cache": true,
-    "**/*.egg-info/**": true
-  },
+  "editor.quickSuggestionsDelay": 100,
+  "editor.hover.delay": 300,
+  // ================= Performance =================
+  "search.searchOnType": false,
+  "search.followSymlinks": false,
+  "workbench.startupEditor": "none",
+  "workbench.editor.restoreViewState": false,
+  "remote.WSL.fileWatcher.polling": false,
+  "files.simpleDialog.enable": true,
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
@@ -30,56 +77,51 @@
     "**/__pycache__": true,
     "**/.venv": true,
     "**/.ruff_cache": true,
+    "**/*.egg-info/**": true,
+    "**/.cache/**": true,
+    "**/tmp/**": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/__pycache__": true,
+    "**/.mypy_cache": true,
+    "**/.ruff_cache": true,
+    "**/.pytest_cache": true,
     "**/*.egg-info/**": true
   },
-  // Python + Pylance defaults for this project
-  "python.analysis.typeCheckingMode": "basic",
-  "python.analysis.languageServerMode": "light",
-  "python.analysis.diagnosticMode": "workspace",
-  "python.analysis.autoImportCompletions": true,
-  "python.analysis.enablePytestSupport": true,
-  "python.analysis.useLibraryCodeForTypes": true,
+  // ================= Python  =================
+  "python.languageServer": "None",
   "python.analysis.indexing": false,
-  "python.analysis.inlayHints.variableTypes": true,
-  "python.analysis.userFileIndexingLimit": 2000,
-  "python.analysis.exclude": [
-    "**/.venv",
-    "**/__pycache__",
-    "**/.mypy_cache",
-    "**/.ruff_cache",
-    "**/.pytest_cache",
-    "**/build",
-    "**/dist",
-    "**/node_modules",
-    "**/.*"
-  ],
-  "python.analysis.diagnosticSeverityOverrides": {
-    "reportUnusedImport": "none",
-    "reportUnusedVariable": "none",
-    "reportGeneralTypeIssues": "warning",
-    "reportPrivateUsage": "information"
-  },
-  // Pytest integration
-  "python.testing.pytestEnabled": true,
-  "python.testing.autoTestDiscoverOnSaveEnabled": false,
+  "ruff.nativeServer": true,
   "python.testing.pytestArgs": [
     "--color=yes",
     "-v",
     "--tb=short"
   ],
-  // Ruff as the canonical Python formatter/linter
+  "python.testing.autoTestDiscoverOnSaveEnabled": false,
+  "python.terminal.activateEnvironment": false,
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
-    "editor.detectIndentation": false,
     "editor.tabSize": 8,
     "editor.insertSpaces": false,
     "editor.wordWrapColumn": 100,
     "editor.codeActionsOnSave": {
-      "source.fixAll.ruff": "always",
-      "source.organizeImports.ruff": "always"
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
     }
   },
   "files.trimTrailingWhitespace": true,
+  // ================= Git =================
+  "git.autofetch": false,
+  "git.enableSmartCommit": false,
+  "editor.aiStats.enabled": false,
+  // ================= Extensions =================
+  "find-it-faster.general.killTerminalAfterUse": false,
+  "find-it-faster.general.batTheme": "base16",
+  "chat.agentsControl.enabled": "badge",
+  "window.commandCenter": false,
+  "workbench.layoutControl.enabled": false,
+  "workbench.colorTheme": "Vim Dark Medium",
   "workbench.editorAssociations": {
     "*.copilotmd": "vscode.markdown.preview.editor",
     "*.md": "markdownEditorOptimized.editor",
@@ -102,5 +144,25 @@
     "chat-editing-text-model:**/*.markdown": "default",
     "chat-editing-text-model:**/*.mdx": "default",
     "chat-editing-text-model:**/*.mdc": "default"
-  }
+  },
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false,
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/.venv/**": true,
+    "**/__pycache__/**": true,
+    "**/.ruff_cache/**": true
+  },
+  // ================= Editor Responsiveness =================
+  "editor.experimental.asyncTokenization": true,
+  "chat.viewSessions.orientation": "stacked",
+  "explorer.autoReveal": false,
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
 }

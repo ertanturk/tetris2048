@@ -4,36 +4,32 @@ A Tile represents a 2048-style numbered tile that appears in the game,
 with a number value, background color, and foreground color.
 """
 
-from typing import TYPE_CHECKING, Any
+from __future__ import annotations
 
-from tetris2048.core.point import Point
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-	pass
+	from tetris2048.core.point import Point
+	from tetris2048.rendering import stddraw as stddraw_module
+	from tetris2048.rendering.color import Color
 
 
-_cached_color: Any = None
-_cached_stddraw: Any = None
-
-
-def _lazy_import_color() -> Any:
+def _lazy_import_color() -> type[Color]:
 	"""Lazily import Color to avoid circular imports."""
-	global _cached_color  # noqa: PLW0603
-	if _cached_color is None:
-		from tetris2048.rendering.color import Color as _Color  # noqa: PLC0415
+	if not hasattr(_lazy_import_color, "_cached"):
+		from tetris2048.rendering.color import Color as _Color
 
-		_cached_color = _Color
-	return _cached_color
+		_lazy_import_color._cached = _Color
+	return _lazy_import_color._cached
 
 
-def _lazy_import_stddraw() -> Any:
+def _lazy_import_stddraw() -> stddraw_module:
 	"""Lazily import stddraw to avoid circular imports."""
-	global _cached_stddraw  # noqa: PLW0603
-	if _cached_stddraw is None:
-		from tetris2048.rendering import stddraw as _stddraw  # noqa: PLC0415
+	if not hasattr(_lazy_import_stddraw, "_cached"):
+		from tetris2048.rendering import stddraw as _stddraw
 
-		_cached_stddraw = _stddraw
-	return _cached_stddraw
+		_lazy_import_stddraw._cached = _stddraw
+	return _lazy_import_stddraw._cached
 
 
 class Tile:
@@ -53,11 +49,11 @@ class Tile:
 
 	def __init__(self) -> None:
 		"""Initialize a tile with number 2 and default colors."""
-		ColorClass = _lazy_import_color()
+		color_class = _lazy_import_color()
 		self.number: int = 2
-		self.background_color = ColorClass(151, 178, 199)
-		self.foreground_color = ColorClass(0, 100, 200)
-		self.box_color = ColorClass(0, 100, 200)
+		self.background_color = color_class(151, 178, 199)
+		self.foreground_color = color_class(0, 100, 200)
+		self.box_color = color_class(0, 100, 200)
 
 	def draw(self, position: Point, length: float = 1) -> None:
 		"""Draw this tile at the given position.

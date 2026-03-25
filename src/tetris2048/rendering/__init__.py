@@ -29,7 +29,8 @@ def __getattr__(name: str) -> object:
 		return importlib.import_module(
 			".stddraw", package="tetris2048.rendering"
 		)
-	raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+	msg = f"module '{__name__}' has no attribute '{name}'"
+	raise AttributeError(msg)
 
 
 def __dir__() -> list[str]:

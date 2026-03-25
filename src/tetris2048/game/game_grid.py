@@ -4,28 +4,36 @@ The GameGrid represents the playing field and manages the placement
 of tiles, collision detection, and game over conditions.
 """
 
-from typing import TYPE_CHECKING, Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from tetris2048.core import Point
+from tetris2048.core.point import Point
 
 if TYPE_CHECKING:
 	from tetris2048.game.tetromino import Tetromino
+	from tetris2048.rendering import stddraw as stddraw_module
+	from tetris2048.rendering.color import Color
 
 
-def _lazy_import_color() -> Any:
+def _lazy_import_color() -> Color:
 	"""Lazily import Color to avoid circular imports."""
-	from tetris2048.rendering.color import Color  # noqa: PLC0415
+	if not hasattr(_lazy_import_color, "_cached"):
+		from tetris2048.rendering.color import Color as _Color  # noqa: PLC0415
 
-	return Color
+		_lazy_import_color._cached = _Color  # noqa: SLF001
+	return _lazy_import_color._cached  # noqa: SLF001
 
 
-def _lazy_import_stddraw() -> Any:
+def _lazy_import_stddraw() -> stddraw_module:
 	"""Lazily import stddraw to avoid circular imports."""
-	from tetris2048.rendering import stddraw  # noqa: PLC0415
+	if not hasattr(_lazy_import_stddraw, "_cached"):
+		from tetris2048.rendering import stddraw as _stddraw  # noqa: PLC0415
 
-	return stddraw
+		_lazy_import_stddraw._cached = _stddraw  # noqa: SLF001
+	return _lazy_import_stddraw._cached  # noqa: SLF001
 
 
 class GameGrid:
@@ -50,7 +58,7 @@ class GameGrid:
 			grid_h: The height of the grid in cells.
 			grid_w: The width of the grid in cells.
 		"""
-		Color = _lazy_import_color()
+		color_class = _lazy_import_color()
 		self.grid_height = grid_h
 		self.grid_width = grid_w
 		# Create a tile matrix to store tiles locked on the game grid
@@ -60,9 +68,9 @@ class GameGrid:
 		# Game over flag
 		self.game_over = False
 		# Colors for display
-		self.empty_cell_color = Color(42, 69, 99)
-		self.line_color = Color(0, 100, 200)
-		self.boundary_color = Color(0, 100, 200)
+		self.empty_cell_color = color_class(42, 69, 99)
+		self.line_color = color_class(0, 100, 200)
+		self.boundary_color = color_class(0, 100, 200)
 		# Thickness values for drawing
 		self.line_thickness = 0.002
 		self.box_thickness = 5 * self.line_thickness

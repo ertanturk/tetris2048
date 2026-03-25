@@ -16,7 +16,8 @@ def __getattr__(name: str) -> object:
 		from tetris2048.game import GameEngine  # noqa: PLC0415
 
 		return GameEngine
-	raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+	msg = f"module '{__name__}' has no attribute '{name}'"
+	raise AttributeError(msg)
 
 
 def __dir__() -> list[str]:

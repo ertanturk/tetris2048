@@ -14,7 +14,8 @@ def __getattr__(name: str) -> object:
 		from tetris2048.core.tile import Tile  # noqa: PLC0415
 
 		return Tile
-	raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+	msg = f"module '{__name__}' has no attribute '{name}'"
+	raise AttributeError(msg)
 
 
 def __dir__() -> list[str]:

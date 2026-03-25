@@ -5,7 +5,7 @@ A Tetromino is a game piece composed of four tiles arranged in various shapes
 """
 
 import copy as cp
-import random
+import secrets
 from typing import TYPE_CHECKING, ClassVar
 
 import numpy as np
@@ -38,22 +38,21 @@ class Tetromino:
 		"Z": [(0, 1), (1, 1), (1, 2), (2, 2)],
 	}
 
-	# Game grid dimensions (set by GameEngine)
 	grid_height: int = 20
 	grid_width: int = 12
 
-	def __init__(self, type: str) -> None:
-		"""Initialize a tetromino with the given type.
+	def __init__(self, shape_type: str) -> None:
+		"""Initialize a tetromino with the given shape type.
 
 		Args:
-			type: The shape type ('I', 'O', 'Z', etc.)
+			shape_type: The shape type ('I', 'O', 'Z', etc.)
 		"""
-		self.type = type
+		self.type = shape_type
 
 		# Determine the size of the tile matrix
-		if type == "I":
+		if self.type == "I":
 			n = 4
-		elif type == "O":
+		elif self.type == "O":
 			n = 2
 		else:  # Z and others
 			n = 3
@@ -63,13 +62,12 @@ class Tetromino:
 
 		# Place tiles according to the shape
 		for i in range(4):
-			col_index, row_index = self.SHAPES[type][i]
+			col_index, row_index = self.SHAPES[self.type][i]
 			self.tile_matrix[row_index][col_index] = Tile()
 
-		# Initialize position (random horizontal, above grid)
 		self.bottom_left_cell = Point()
 		self.bottom_left_cell.y = self.grid_height - 1
-		self.bottom_left_cell.x = random.randint(0, self.grid_width - n)  # nosec B311
+		self.bottom_left_cell.x = secrets.randbelow(self.grid_width - n + 1)
 
 	def get_cell_position(self, row: int, col: int) -> Point:
 		"""Get the position of a cell in the tetromino.
@@ -88,17 +86,17 @@ class Tetromino:
 		return position
 
 	def get_min_bounded_tile_matrix(
-		self, return_position: bool = False
+		self, *, return_position: bool = False
 	) -> tuple[np.ndarray, Point | None]:
 		"""Get the minimal bounding tile matrix without empty rows/columns.
 
-		Args:
-			return_position: If True, also return the bottom-left corner position.
+		`return_position` is a keyword-only boolean. If True, the function
+		also returns the bottom-left corner position of the bounded matrix.
 
 		Returns:
-			If return_position is False: just the tile matrix.
-			If return_position is True: tuple of (tile_matrix, position).
-		"""  # noqa: E501
+			If `return_position` is False: tuple(tile_matrix, None).
+			If `return_position` is True: tuple(tile_matrix, position).
+		"""
 		n = len(self.tile_matrix)
 		min_row, max_row = n - 1, 0
 		min_col, max_col = n - 1, 0
@@ -113,23 +111,25 @@ class Tetromino:
 					max_col = max(max_col, col)
 
 		# Copy the bounded tiles
-		copy = np.full((max_row - min_row + 1, max_col - min_col + 1), None)
+		bounded_copy = np.full(
+			(max_row - min_row + 1, max_col - min_col + 1), None
+		)
 		for row in range(min_row, max_row + 1):
 			for col in range(min_col, max_col + 1):
 				if self.tile_matrix[row][col] is not None:
 					row_ind = row - min_row
 					col_ind = col - min_col
-					copy[row_ind][col_ind] = cp.deepcopy(
+					bounded_copy[row_ind][col_ind] = cp.deepcopy(
 						self.tile_matrix[row][col]
 					)
 
 		if not return_position:
-			return copy, None
+			return bounded_copy, None
 
 		# Compute the new bottom-left corner position
 		blc_position = cp.copy(self.bottom_left_cell)
 		blc_position.translate(min_col, (n - 1) - max_row)
-		return copy, blc_position
+		return bounded_copy, blc_position
 
 	def draw(self) -> None:
 		"""Draw this tetromino on the game grid."""

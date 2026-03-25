@@ -48,7 +48,7 @@ dev = [
     "pip-audit",
     "pytest",
     "pytest-cov",
-    "numpy",
+    "pytest-xdist"
 ]
 
 [project.urls]
@@ -62,41 +62,61 @@ tetris2048 = "tetris2048.game.game_engine:main"
 
 [tool.ruff]
 line-length = 88
+fix = true
 indent-width = 8
 target-version = "py312"
+exclude = ["build/", ".venv/"]
 
 [tool.ruff.format]
 indent-style = "tab"
 quote-style = "double"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "C901", "SIM", "PL", "RUF"]
-ignore = []
+select = ["ALL"]
+ignore = ["COM812", "W191", "D206"]
+per-file-ignores = { "src/tetris2048/rendering/stddraw.py" = ["N802", "N816", "N812", "ERA001", "D205", "TRY002", "A002", "A001", "N806"] }
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
 
 [tool.mypy]
-python_version = "3.12"
+python_version = 3.12
+disallow_untyped_defs = true
+check_untyped_defs = true
+warn_redundant_casts = true
+no_implicit_optional = true
+strict_equality = true
+show_error_codes = true
+pretty = true
 strict = true
 warn_unused_ignores = true
 warn_return_any = true
-exclude = ["build/", "\\.venv/"]
+exclude = ["build/", ".venv/"]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --strict-markers --maxfail=1 --showlocals --cov=tetris2048 --cov-report=term-missing --cov-fail-under=80"
 testpaths = ["tests"]
 minversion = "7.0"
+python_files = ["test_*.py"]
+filterwarnings = ["default"]
+log_cli = false
+log_cli_level = "INFO"
 
 [tool.coverage.run]
 branch = true
-source = ["."]
+source = ["tetris2048"]
 omit = ["tests/*", ".venv/*"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 80
 
 [tool.bandit]
 exclude_dirs = ["tests", ".venv"]
-skips = ["B101"]
+skips = []

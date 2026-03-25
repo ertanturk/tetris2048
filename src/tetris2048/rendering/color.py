@@ -25,28 +25,16 @@ class Color:
 		self._g = g
 		self._b = b
 
-	def getRed(self) -> int:
-		"""Get the red component of this color.
-
-		Returns:
-			The red component value.
-		"""
+	def get_red(self) -> int:
+		"""Return the red component of this color."""
 		return self._r
 
-	def getGreen(self) -> int:
-		"""Get the green component of this color.
-
-		Returns:
-			The green component value.
-		"""
+	def get_green(self) -> int:
+		"""Return the green component of this color."""
 		return self._g
 
-	def getBlue(self) -> int:
-		"""Get the blue component of this color.
-
-		Returns:
-			The blue component value.
-		"""
+	def get_blue(self) -> int:
+		"""Return the blue component of this color."""
 		return self._b
 
 	def __str__(self) -> str:

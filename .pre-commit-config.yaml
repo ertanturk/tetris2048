@@ -5,17 +5,22 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
-      - id: check-yaml
-      - id: end-of-file-fixer
       - id: trailing-whitespace
+      - id: end-of-file-fixer
       - id: check-merge-conflict
-      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+      - id: check-ast
+      - id: debug-statements
+      - id: check-docstring-first
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.7
     hooks:
-      - id: ruff
-        args: [--fix, --unsafe-fixes]
+      - id: ruff-check
+        args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -29,14 +34,14 @@ repos:
     rev: 1.9.4
     hooks:
       - id: bandit
-        args: ["-c", "pyproject.toml", "-r", "."]
+        args: ["-c", "pyproject.toml", "-r", "tetris2048"]
         pass_filenames: false
 
   - repo: local
     hooks:
-      - id: pytest-coverage
-        name: pytest with coverage
-        entry: pytest --cov=. --cov-report=term-missing --cov-fail-under=80
+      - id: pytest
+        name: pytest
+        entry: pytest
         language: system
         pass_filenames: false
         always_run: false

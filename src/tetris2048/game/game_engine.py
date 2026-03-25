@@ -4,9 +4,10 @@ This module contains the GameEngine class which orchestrates the game loop,
 handles user input, and manages the overall game state.
 """
 
-import os
-import random
+import logging
+import secrets
 import types
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -74,21 +75,24 @@ class GameEngine:
 		self.canvas_width = self.cell_size * self.grid_width
 
 		# Initialize the game grid
-		GameGrid = _lazy_import_game_grid()
-		self.grid = GameGrid(self.grid_height, self.grid_width)
+		game_grid_cls = _lazy_import_game_grid()
+		self.grid = game_grid_cls(self.grid_height, self.grid_width)
 		self.current_tetromino: Tetromino | None = None
+
+		# Logger for this module
+		self._logger = logging.getLogger(__name__)
 
 	def setup_display(self) -> None:
 		"""Set up the display canvas and coordinate system."""
 		stddraw = _lazy_import_stddraw()
-		Tetromino = _lazy_import_tetromino()
+		tetromino_cls = _lazy_import_tetromino()
 		stddraw.setCanvasSize(self.canvas_width, self.canvas_height)
 		stddraw.setXscale(-0.5, self.grid_width - 0.5)
 		stddraw.setYscale(-0.5, self.grid_height - 0.5)
 
 		# Set grid dimensions for Tetromino class
-		Tetromino.grid_height = self.grid_height
-		Tetromino.grid_width = self.grid_width
+		tetromino_cls.grid_height = self.grid_height
+		tetromino_cls.grid_width = self.grid_width
 
 	def create_tetromino(self) -> "Tetromino":
 		"""Create a new random tetromino.
@@ -96,10 +100,10 @@ class GameEngine:
 		Returns:
 			A new Tetromino with a random shape.
 		"""
-		Tetromino = _lazy_import_tetromino()
+		tetromino_cls = _lazy_import_tetromino()
 		tetromino_types = ["I", "O", "Z"]
-		random_type = random.choice(tetromino_types)  # nosec B311
-		return Tetromino(random_type)
+		# Use secrets to avoid security lint about pseudo-random for crypto
+		return tetromino_cls(secrets.choice(tetromino_types))
 
 	def display_game_menu(self) -> None:
 		"""Display the main game menu and wait for user to start.
@@ -107,28 +111,27 @@ class GameEngine:
 		Shows an image, information text, and a clickable start button.
 		Blocks until the user clicks the start button.
 		"""
-		Color = _lazy_import_color()
-		Picture = _lazy_import_picture()
+		color_cls = _lazy_import_color()
+		picture_cls = _lazy_import_picture()
 		stddraw = _lazy_import_stddraw()
 		# Menu colors
-		background_color = Color(42, 69, 99)
-		button_color = Color(25, 255, 228)
-		text_color = Color(31, 160, 239)
+		background_color = color_cls(42, 69, 99)
+		button_color = color_cls(25, 255, 228)
+		text_color = color_cls(31, 160, 239)
 
 		# Clear background
 		stddraw.clear(background_color)
 
-		# Get the directory of this file
-		current_dir = os.path.dirname(os.path.realpath(__file__))
-		# Build path to menu image
-		img_file = os.path.join(current_dir, "../../images/menu_image.png")
+		# Get the directory of this file and build path to menu image
+		current_dir = Path(__file__).resolve().parent
+		img_file = current_dir / ".." / ".." / "images" / "menu_image.png"
 
 		# Display image if it exists
 		img_center_x = (self.grid_width - 1) / 2
 		img_center_y = self.grid_height - 7
 
-		if os.path.exists(img_file):
-			image_to_display = Picture(img_file)
+		if img_file.exists():
+			image_to_display = picture_cls(str(img_file))
 			stddraw.picture(image_to_display, img_center_x, img_center_y)
 
 		# Draw start button
@@ -201,7 +204,9 @@ class GameEngine:
 
 		# Spawn first tetromino
 		self.spawn_tetromino()
-		assert self.current_tetromino is not None, "Tetromino must be spawned"
+		if self.current_tetromino is None:
+			msg = "Tetromino must be spawned"
+			raise RuntimeError(msg)
 
 		# Main game loop
 		while not self.grid.game_over:
@@ -215,13 +220,17 @@ class GameEngine:
 
 			# If tetromino can't move down, lock it on the grid
 			if not success:
-				assert self.current_tetromino is not None
+				if self.current_tetromino is None:
+					msg = "Current tetromino missing"
+					raise RuntimeError(msg)
 				tiles, pos = (
 					self.current_tetromino.get_min_bounded_tile_matrix(
 						return_position=True
 					)
 				)
-				assert pos is not None
+				if pos is None:
+					msg = "Position not returned by tetromino"
+					raise RuntimeError(msg)
 				self.grid.update_grid(tiles, pos)
 
 				# Spawn next tetromino
@@ -231,7 +240,7 @@ class GameEngine:
 			self.grid.display()
 
 		# Game over
-		print("Game over")
+		self._logger.info("Game over")
 
 
 def main() -> None:
