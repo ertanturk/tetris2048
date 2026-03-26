@@ -23,6 +23,7 @@ import pygame.gfxdraw
 
 if TYPE_CHECKING:
 	from tetris2048.rendering.color import Color
+	from tetris2048.rendering.picture import Picture
 
 # Define colors so clients need not import the color module
 from tetris2048.rendering.color import (
@@ -73,7 +74,7 @@ _fontSize: int = _DEFAULT_FONT_SIZE
 _canvasWidth: float = float(_DEFAULT_CANVAS_SIZE)
 _canvasHeight: float = float(_DEFAULT_CANVAS_SIZE)
 _penRadius: float = _DEFAULT_PEN_RADIUS
-_penColor: Any = _DEFAULT_PEN_COLOR
+_penColor: Color = _DEFAULT_PEN_COLOR
 _keysTyped: list[str] = []
 
 # Background and surface for pygame
@@ -509,7 +510,7 @@ def boldText(x: float, y: float, s: str) -> None:
 	_surface.blit(text, textpos)
 
 
-def picture(pic: Any, x: float | None = None, y: float | None = None) -> None:  # noqa: ANN401
+def picture(pic: Picture, x: float | None = None, y: float | None = None) -> None:
 	"""Draw pic on the background canvas centered at (x, y).  pic is an
 	object of class picture.Picture. x and y default to the midpoint
 	of the background canvas.
@@ -578,12 +579,13 @@ def _showAndWaitForever() -> None:
 		_checkForEvents()
 
 
-def show(msec: float = float("inf")) -> None:
+def show(msec: float | None = None) -> None:
 	"""Copy the background canvas to the window canvas, and
 	then wait for msec milliseconds. msec defaults to infinity.
 	"""
-	if msec == float("inf"):
+	if msec is None:
 		_showAndWaitForever()
+		return
 
 	_makeSureWindowCreated()
 	_show()

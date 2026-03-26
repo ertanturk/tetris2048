@@ -1,0 +1,17 @@
+{
+  "typeCheckingMode": "strict",
+  "reportMissingTypeStubs": false,
+  "reportAny": false,
+  "reportUnusedCallResult": false,
+  "reportUnnecessaryComparison": false,
+  "reportUnnecessaryIsInstance": false,
+  "reportPrivateUsage": false,
+  "reportUnreachable": false,
+  "reportUndefinedVariable": true,
+  "reportIncompatibleMethodOverride": true,
+  "exclude": [
+    "build/",
+    ".venv/",
+    "*.egg-info"
+  ]
+}

@@ -11,7 +11,7 @@ import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame
 
-from tetris2048.rendering import color
+from tetris2048.rendering.color import Color
 
 # -----------------------------------------------------------------------
 
@@ -56,7 +56,6 @@ class Picture:
 			(arg1 is not None)
 			and (arg2 is not None)
 			and isinstance(arg1, int)
-			and isinstance(arg2, int)
 		):
 			max_w = arg1
 			max_h = arg2
@@ -86,14 +85,14 @@ class Picture:
 
 	# -------------------------------------------------------------------
 
-	def get(self, x: int, y: int) -> color.Color:
+	def get(self, x: int, y: int) -> Color:
 		"""Return the color of self at location (x, y)."""
 		pygame_color = self._surface.get_at((x, y))
-		return color.Color(pygame_color.r, pygame_color.g, pygame_color.b)
+		return Color(pygame_color.r, pygame_color.g, pygame_color.b)
 
 	# -------------------------------------------------------------------
 
-	def set(self, x: int, y: int, c: color.Color) -> None:
+	def set(self, x: int, y: int, c: Color) -> None:
 		"""Set the color of self at location (x, y) to `c`."""
 		pygame_color = pygame.Color(c.get_red(), c.get_green(), c.get_blue(), 0)
 		self._surface.set_at((x, y), pygame_color)

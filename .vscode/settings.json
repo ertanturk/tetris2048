@@ -1,5 +1,4 @@
 {
-  // ================= UI =================
   "workbench.activityBar.location": "top",
   "workbench.tree.indent": 16,
   "workbench.statusBar.visible": true,
@@ -26,7 +25,6 @@
   "editor.colorDecorators": false,
   "editor.guides.indentation": false,
   "editor.guides.bracketPairs": false,
-  // ================= Terminal =================
   "terminal.integrated.defaultProfile.windows": "Ubuntu",
   "terminal.integrated.enablePersistentSessions": false,
   "terminal.integrated.persistentSessionReviveProcess": "never",
@@ -35,7 +33,6 @@
   "terminal.integrated.cursorStyle": "line",
   "terminal.integrated.fontWeight": "normal",
   "terminal.integrated.drawBoldTextInBrightColors": true,
-  "terminal.integrated.fontFamily": "Cascadia Code",
   "terminal.integrated.gpuAcceleration": "on",
   "terminal.integrated.scrollback": 1500,
   "terminal.integrated.copyOnSelection": true,
@@ -44,14 +41,11 @@
       "path": "C:\\Windows\\System32\\wsl.exe"
     }
   },
-  // ================= Editor Core =================
   "editor.fontLigatures": false,
   "editor.smoothScrolling": false,
   "workbench.list.smoothScrolling": false,
   "workbench.settings.enableNaturalLanguageSearch": false,
-  "editor.fontFamily": "Cascadia Code",
   "editor.fontWeight": "400",
-  "editor.fontSize": 16,
   "editor.letterSpacing": 0.5,
   "editor.lineHeight": 1.6,
   "editor.formatOnSave": true,
@@ -61,7 +55,6 @@
   "files.trimFinalNewlines": true,
   "editor.quickSuggestionsDelay": 100,
   "editor.hover.delay": 300,
-  // ================= Performance =================
   "search.searchOnType": false,
   "search.followSymlinks": false,
   "workbench.startupEditor": "none",
@@ -89,8 +82,8 @@
     "**/.pytest_cache": true,
     "**/*.egg-info/**": true
   },
-  // ================= Python  =================
   "python.languageServer": "None",
+  "python.analysis.typeCheckingMode": "off",
   "python.analysis.indexing": false,
   "ruff.nativeServer": true,
   "python.testing.pytestArgs": [
@@ -111,17 +104,14 @@
     }
   },
   "files.trimTrailingWhitespace": true,
-  // ================= Git =================
   "git.autofetch": false,
   "git.enableSmartCommit": false,
   "editor.aiStats.enabled": false,
-  // ================= Extensions =================
   "find-it-faster.general.killTerminalAfterUse": false,
   "find-it-faster.general.batTheme": "base16",
-  "chat.agentsControl.enabled": "badge",
-  "window.commandCenter": false,
+  "chat.agentsControl.enabled": true,
+  "window.commandCenter": true,
   "workbench.layoutControl.enabled": false,
-  "workbench.colorTheme": "Vim Dark Medium",
   "workbench.editorAssociations": {
     "*.copilotmd": "vscode.markdown.preview.editor",
     "*.md": "markdownEditorOptimized.editor",
@@ -143,13 +133,15 @@
     "chat-editing-text-model:**/*.md": "default",
     "chat-editing-text-model:**/*.markdown": "default",
     "chat-editing-text-model:**/*.mdx": "default",
-    "chat-editing-text-model:**/*.mdc": "default"
+    "chat-editing-text-model:**/*.mdc": "default",
+    "\\C:\\Users\\Ertan\\AppData\\Roaming\\Code - Insiders\\User\\settings.json": "default",
+    "/C:/Users/Ertan/AppData/Roaming/Code - Insiders/User/settings.json": "default"
   },
   "github.copilot.enable": {
     "*": true,
     "plaintext": false,
     "markdown": false,
-    "scminput": false,
+    "scminput": false
   },
   "files.watcherExclude": {
     "**/.git/objects/**": true,
@@ -159,10 +151,9 @@
     "**/__pycache__/**": true,
     "**/.ruff_cache/**": true
   },
-  // ================= Editor Responsiveness =================
   "editor.experimental.asyncTokenization": true,
   "chat.viewSessions.orientation": "stacked",
   "explorer.autoReveal": false,
   "workbench.editor.enablePreview": false,
-  "workbench.editor.enablePreviewFromQuickOpen": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false
 }
