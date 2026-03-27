@@ -120,3 +120,21 @@ show_missing = true
 [tool.bandit]
 exclude_dirs = ["tests", ".venv"]
 skips = []
+
+[tool.basedpyright]
+typeCheckingMode = "recommended"
+pythonVersion = "3.12"
+exclude = [
+    "**/build",
+    "**/.venv",
+    "**/*.egg-info"
+]
+reportMissingTypeStubs = false
+reportAny = false
+reportUnusedCallResult = false
+reportUnnecessaryComparison = false
+reportUnnecessaryIsInstance = false
+reportPrivateUsage = false
+reportUnreachable = false
+reportUndefinedVariable = true
+reportIncompatibleMethodOverride = true
