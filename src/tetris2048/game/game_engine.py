@@ -60,35 +60,35 @@ class GameEngine:
 	"""
 
 	# Game grid dimensions
-	GRID_HEIGHT = 20
-	GRID_WIDTH = 12
-	CELL_SIZE = 40
+	GRID_HEIGHT: int = 20
+	GRID_WIDTH: int = 12
+	CELL_SIZE: int = 40
 
 	def __init__(self) -> None:
 		"""Initialize the game engine with default settings."""
-		self.grid_height = self.GRID_HEIGHT
-		self.grid_width = self.GRID_WIDTH
-		self.cell_size = self.CELL_SIZE
+		self.grid_height: int = self.GRID_HEIGHT
+		self.grid_width: int = self.GRID_WIDTH
+		self.cell_size: int = self.CELL_SIZE
 
 		# Calculate canvas dimensions
-		self.canvas_height = self.cell_size * self.grid_height
-		self.canvas_width = self.cell_size * self.grid_width
+		self.canvas_height: int = self.cell_size * self.grid_height
+		self.canvas_width: int = self.cell_size * self.grid_width
 
 		# Initialize the game grid
 		game_grid_cls = _lazy_import_game_grid()
-		self.grid = game_grid_cls(self.grid_height, self.grid_width)
+		self.grid: GameGrid = game_grid_cls(self.grid_height, self.grid_width)
 		self.current_tetromino: Tetromino | None = None
 
 		# Logger for this module
-		self._logger = logging.getLogger(__name__)
+		self._logger: logging.Logger = logging.getLogger(__name__)
 
 	def setup_display(self) -> None:
 		"""Set up the display canvas and coordinate system."""
 		stddraw = _lazy_import_stddraw()
 		tetromino_cls = _lazy_import_tetromino()
-		stddraw.setCanvasSize(self.canvas_width, self.canvas_height)
-		stddraw.setXscale(-0.5, self.grid_width - 0.5)
-		stddraw.setYscale(-0.5, self.grid_height - 0.5)
+		stddraw.setCanvasSize(self.canvas_width, self.canvas_height)  # pyright: ignore[reportAny]
+		stddraw.setXscale(-0.5, self.grid_width - 0.5)  # pyright: ignore[reportAny]
+		stddraw.setYscale(-0.5, self.grid_height - 0.5)  # pyright: ignore[reportAny]
 
 		# Set grid dimensions for Tetromino class
 		tetromino_cls.grid_height = self.grid_height
@@ -105,6 +105,11 @@ class GameEngine:
 		# Use secrets to avoid security lint about pseudo-random for crypto
 		return tetromino_cls(secrets.choice(tetromino_types))
 
+	def spawn_tetromino(self) -> None:
+		"""Create and spawn a new tetromino into the game grid."""
+		self.current_tetromino = self.create_tetromino()
+		self.grid.current_tetromino = self.current_tetromino
+
 	def display_game_menu(self) -> None:
 		"""Display the main game menu and wait for user to start.
 
@@ -120,7 +125,7 @@ class GameEngine:
 		text_color = color_cls(31, 160, 239)
 
 		# Clear background
-		stddraw.clear(background_color)
+		stddraw.clear(background_color)  # pyright: ignore[reportAny]
 
 		# Get the directory of this file and build path to menu image
 		current_dir = Path(__file__).resolve().parent
@@ -132,29 +137,29 @@ class GameEngine:
 
 		if img_file.exists():
 			image_to_display = picture_cls(str(img_file))
-			stddraw.picture(image_to_display, img_center_x, img_center_y)
+			stddraw.picture(image_to_display, img_center_x, img_center_y)  # pyright: ignore[reportAny]
 
 		# Draw start button
 		button_w, button_h = self.grid_width - 1.5, 2
 		button_blc_x = img_center_x - button_w / 2
 		button_blc_y = 4
 
-		stddraw.setPenColor(button_color)
-		stddraw.filledRectangle(button_blc_x, button_blc_y, button_w, button_h)
+		stddraw.setPenColor(button_color)  # pyright: ignore[reportAny]
+		stddraw.filledRectangle(button_blc_x, button_blc_y, button_w, button_h)  # pyright: ignore[reportAny]
 
 		# Draw button text
-		stddraw.setFontFamily("Arial")
-		stddraw.setFontSize(25)
-		stddraw.setPenColor(text_color)
-		stddraw.text(img_center_x, 5, "Click Here to Start the Game")
+		stddraw.setFontFamily("Arial")  # pyright: ignore[reportAny]
+		stddraw.setFontSize(25)  # pyright: ignore[reportAny]
+		stddraw.setPenColor(text_color)  # pyright: ignore[reportAny]
+		stddraw.text(img_center_x, 5, "Click Here to Start the Game")  # pyright: ignore[reportAny]
 
 		# Wait for user click
 		while True:
-			stddraw.show(50)
-			if stddraw.mousePressed():
-				mouse_x, mouse_y = (
-					stddraw.mouseX(),
-					stddraw.mouseY(),
+			stddraw.show(50)  # pyright: ignore[reportAny]
+			if stddraw.mousePressed():  # pyright: ignore[reportAny]
+				mouse_x, mouse_y = (  # pyright: ignore[reportAny]
+					stddraw.mouseX(),  # pyright: ignore[reportAny]
+					stddraw.mouseY(),  # pyright: ignore[reportAny]
 				)
 				# Check if click is inside button
 				if (
@@ -170,27 +175,23 @@ class GameEngine:
 	def handle_input(self) -> None:
 		"""Handle keyboard input for tetromino movement."""
 		stddraw = _lazy_import_stddraw()
-		if not stddraw.hasNextKeyTyped():
+		if not stddraw.hasNextKeyTyped():  # pyright: ignore[reportAny]
 			return
 
-		key_typed = stddraw.nextKeyTyped()
+		key_typed = stddraw.nextKeyTyped()  # pyright: ignore[reportAny]
 
 		if self.current_tetromino is None:
 			return
 
 		if key_typed == "left":
-			self.current_tetromino.move("left", self.grid)
+			_ = self.current_tetromino.move("left", self.grid)
 		elif key_typed == "right":
-			self.current_tetromino.move("right", self.grid)
+			_ = self.current_tetromino.move("right", self.grid)
 		elif key_typed == "down":
-			self.current_tetromino.move("down", self.grid)
+			_ = self.current_tetromino.move("down", self.grid)
 
-		stddraw.clearKeysTyped()
-
-	def spawn_tetromino(self) -> None:
-		"""Create and spawn a new tetromino into the game grid."""
-		self.current_tetromino = self.create_tetromino()
-		self.grid.current_tetromino = self.current_tetromino
+		stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
+		self.spawn_tetromino()
 
 	def run(self) -> None:
 		"""Run the main game loop.
@@ -214,15 +215,10 @@ class GameEngine:
 			self.handle_input()
 
 			# Move tetromino down
-			if self.current_tetromino is None:
-				break
 			success = self.current_tetromino.move("down", self.grid)
 
 			# If tetromino can't move down, lock it on the grid
 			if not success:
-				if self.current_tetromino is None:
-					msg = "Current tetromino missing"
-					raise RuntimeError(msg)
 				tiles, pos = (
 					self.current_tetromino.get_min_bounded_tile_matrix(
 						return_position=True
@@ -231,7 +227,7 @@ class GameEngine:
 				if pos is None:
 					msg = "Position not returned by tetromino"
 					raise RuntimeError(msg)
-				self.grid.update_grid(tiles, pos)
+				self.grid.update_grid(tiles, pos)  # pyright: ignore[reportUnusedCallResult]
 
 				# Spawn next tetromino
 				self.spawn_tetromino()

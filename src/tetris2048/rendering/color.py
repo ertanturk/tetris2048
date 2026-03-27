@@ -3,6 +3,8 @@
 The Color class represents an RGB color and provides standard color constants.
 """
 
+from typing import override
+
 
 class Color:
 	"""An RGB color object.
@@ -12,6 +14,10 @@ class Color:
 		g (int): The green component (0-255).
 		b (int): The blue component (0-255).
 	"""
+
+	_r: int
+	_g: int
+	_b: int
 
 	def __init__(self, r: int = 0, g: int = 0, b: int = 0) -> None:
 		"""Initialize a Color with RGB components.
@@ -37,6 +43,7 @@ class Color:
 		"""Return the blue component of this color."""
 		return self._b
 
+	@override
 	def __str__(self) -> str:
 		"""Return the string representation of this color.
 
@@ -45,6 +52,7 @@ class Color:
 		"""
 		return f"({self._r}, {self._g}, {self._b})"
 
+	@override
 	def __repr__(self) -> str:
 		"""Return the representation of this color.
 

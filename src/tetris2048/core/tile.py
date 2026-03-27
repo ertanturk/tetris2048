@@ -6,7 +6,7 @@ with a number value, background color, and foreground color.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 from tetris2048.rendering import stddraw
 from tetris2048.rendering.color import Color
@@ -46,9 +46,9 @@ class Tile:
 		"""Initialize a tile with number 2 and default colors."""
 		color_class = _lazy_import_color()
 		self.number: int = 2
-		self.background_color = color_class(151, 178, 199)
-		self.foreground_color = color_class(0, 100, 200)
-		self.box_color = color_class(0, 100, 200)
+		self.background_color: Color = color_class(151, 178, 199)
+		self.foreground_color: Color = color_class(0, 100, 200)
+		self.box_color: Color = color_class(0, 100, 200)
 
 	def draw(self, position: Point, length: float = 1) -> None:
 		"""Draw this tile at the given position.
@@ -73,6 +73,7 @@ class Tile:
 		stddraw.setFontSize(Tile.font_size)
 		stddraw.boldText(position.x, position.y, str(self.number))
 
+	@override
 	def __str__(self) -> str:
 		"""Return the string representation of this tile.
 
@@ -81,6 +82,7 @@ class Tile:
 		"""
 		return str(self.number)
 
+	@override
 	def __repr__(self) -> str:
 		"""Return the representation of this tile.
 

@@ -6,7 +6,7 @@ of tiles, collision detection, and game over conditions.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol, cast
 
 import numpy as np
 
@@ -15,7 +15,14 @@ from tetris2048.rendering import stddraw
 from tetris2048.rendering.color import Color
 
 if TYPE_CHECKING:
-	from tetris2048.game.tetromino import Tetromino
+	from tetris2048.core.tile import Tile
+
+
+class DrawableTetromino(Protocol):
+	"""Protocol for tetromino-like objects that can be drawn."""
+
+	def draw(self) -> None:
+		"""Draw the tetromino on the screen."""
 
 
 class GameGrid:
@@ -41,21 +48,21 @@ class GameGrid:
 			grid_w: The width of the grid in cells.
 		"""
 		color_class = Color
-		self.grid_height = grid_h
-		self.grid_width = grid_w
+		self.grid_height: int = grid_h
+		self.grid_width: int = grid_w
 		# Create a tile matrix to store tiles locked on the game grid
 		self.tile_matrix: np.ndarray = np.full((grid_h, grid_w), None)
 		# The tetromino currently being moved
-		self.current_tetromino: Tetromino | None = None
+		self.current_tetromino: DrawableTetromino | None = None
 		# Game over flag
-		self.game_over = False
+		self.game_over: bool = False
 		# Colors for display
-		self.empty_cell_color = color_class(42, 69, 99)
-		self.line_color = color_class(0, 100, 200)
-		self.boundary_color = color_class(0, 100, 200)
+		self.empty_cell_color: Color = color_class(42, 69, 99)
+		self.line_color: Color = color_class(0, 100, 200)
+		self.boundary_color: Color = color_class(0, 100, 200)
 		# Thickness values for drawing
-		self.line_thickness = 0.002
-		self.box_thickness = 5 * self.line_thickness
+		self.line_thickness: float = 0.002
+		self.box_thickness: float = 5 * self.line_thickness
 
 	def display(self) -> None:
 		"""Display the game grid on the screen.
@@ -83,8 +90,9 @@ class GameGrid:
 		# Draw each tile in the grid
 		for row in range(self.grid_height):
 			for col in range(self.grid_width):
-				if self.tile_matrix[row][col] is not None:
-					self.tile_matrix[row][col].draw(Point(col, row))
+				tile = cast("Tile | None", self.tile_matrix[row][col])
+				if tile is not None:
+					tile.draw(Point(col, row))
 
 		# Draw inner grid lines
 		stddraw.setPenColor(self.line_color)
@@ -152,7 +160,7 @@ class GameGrid:
 		"""
 		self.current_tetromino = None
 
-		n_rows, n_cols = len(tiles_to_lock), len(tiles_to_lock[0])
+		n_rows, n_cols = cast("tuple[int, int]", tiles_to_lock.shape)
 
 		for col in range(n_cols):
 			for row in range(n_rows):

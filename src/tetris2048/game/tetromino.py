@@ -6,7 +6,7 @@ A Tetromino is a game piece composed of four tiles arranged in various shapes
 
 import copy as cp
 import secrets
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, override
 
 import numpy as np
 
@@ -47,7 +47,7 @@ class Tetromino:
 		Args:
 			shape_type: The shape type ('I', 'O', 'Z', etc.)
 		"""
-		self.type = shape_type
+		self.type: str = shape_type
 
 		# Determine the size of the tile matrix
 		if self.type == "I":
@@ -65,7 +65,7 @@ class Tetromino:
 			col_index, row_index = self.SHAPES[self.type][i]
 			self.tile_matrix[row_index][col_index] = Tile()
 
-		self.bottom_left_cell = Point()
+		self.bottom_left_cell: Point = Point()
 		self.bottom_left_cell.y = self.grid_height - 1
 		self.bottom_left_cell.x = secrets.randbelow(self.grid_width - n + 1)
 
@@ -231,6 +231,7 @@ class Tetromino:
 				break
 		return True
 
+	@override
 	def __str__(self) -> str:
 		"""Return the string representation of this tetromino.
 
@@ -239,6 +240,7 @@ class Tetromino:
 		"""
 		return f"Tetromino({self.type})"
 
+	@override
 	def __repr__(self) -> str:
 		"""Return the representation of this tetromino.
 

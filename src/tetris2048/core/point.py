@@ -4,6 +4,8 @@ A Point represents a location in 2D space with x and y coordinates,
 used for tracking positions of game pieces and grid cells.
 """
 
+from typing import override
+
 
 class Point:
 	"""Represents a point as a location in 2D space.
@@ -12,6 +14,9 @@ class Point:
 		x (int): The x-coordinate of the point.
 		y (int): The y-coordinate of the point.
 	"""
+
+	x: int
+	y: int
 
 	def __init__(self, x: int = 0, y: int = 0) -> None:
 		"""Initialize a point at the given location.
@@ -43,6 +48,7 @@ class Point:
 		self.x = x
 		self.y = y
 
+	@override
 	def __str__(self) -> str:
 		"""Return the string representation of this point.
 
@@ -51,6 +57,7 @@ class Point:
 		"""
 		return f"({self.x}, {self.y})"
 
+	@override
 	def __repr__(self) -> str:
 		"""Return the representation of this point.
 
