@@ -50,6 +50,10 @@ dev = [
     "pytest-cov",
     "pytest-xdist"
 ]
+packaging = [
+    "pyinstaller>=5.10",
+    "pyinstaller-hooks-contrib>=2024.2",
+]
 
 [project.urls]
 Homepage = "https://github.com/ertanturk/tetris2048"
@@ -138,3 +142,40 @@ reportPrivateUsage = false
 reportUnreachable = false
 reportUndefinedVariable = true
 reportIncompatibleMethodOverride = true
+
+# PyInstaller configuration hints.
+# This section is informational and helps document how to produce standalone
+# executables for Windows, Linux and macOS using the optional 'packaging' extras
+# defined above. Install via pip using the project's lockfile (uv.lock) to get
+# the pinned versions, e.g.:
+#   python -m pip install --upgrade pip
+#   python -m pip install ".[packaging]" --use-feature=truststore
+#
+# Then build with PyInstaller. Example CLI recommended for cross-platform builds:
+#   python -m PyInstaller --name tetris2048 --onefile --add-data "tetris2048/images:images" tetris2048/__main__.py
+#
+# If you want to centralize options, you can create a `pyinstaller.spec` file in
+# your repo root. Suggested spec settings:
+[tool.pyinstaller]
+# Entry point callable for reference (used for documentation; PyInstaller uses modules/scripts)
+entry_point = "tetris2048.game.game_engine:main"
+name = "tetris2048"
+onefile = true
+windowed = false
+# Path to an icon file (optional). If you don't have one, remove or adjust this.
+icon = "tetris2048/images/icon.ico"
+# Files/folders to include (source:destination). Use platform-appropriate separators when invoking PyInstaller on each OS.
+additional_data = [
+    "tetris2048/images:images",
+]
+# If your runtime imports are hidden from static analysis, list them here:
+hidden_imports = [
+    "pygame",
+]
+# Platforms this config targets (informational only)
+platforms = ["windows", "linux", "macos"]
+
+# Recommended notes:
+# - Use the `packaging` extra (which includes PyInstaller) and install with pip using the repository's uv.lock to match versions.
+# - On Windows, build on Windows to get a native .exe. On macOS, build on macOS for a native app/bundle.
+# - For reproducible builds across CI, install the locked dependencies from uv.lock into a clean venv and run the PyInstaller command above.
