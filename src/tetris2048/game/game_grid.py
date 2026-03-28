@@ -261,7 +261,7 @@ class GameGrid:
 		return total_points
 
 	def merge_vertical(self) -> int:
-		"""Merge vertically adjacent tiles and compress columns (gravity).
+		"""Merge vertically adjacent tiles and shift above tiles down.
 
 		Returns:
 			The total points gained by merges (sum of merged tile values).
@@ -269,47 +269,49 @@ class GameGrid:
 		total_points = 0
 
 		for column_index in range(self.grid_width):
-			# Extract all non-empty tiles in this column
-			current_column_tiles = []
-			for row_index in range(self.grid_height):
-				tile = self.tile_matrix[row_index][column_index]
-				if tile is not None:
-					current_column_tiles.append(tile)
+			row_index = 0
 
-			# Merge adjacent tiles with the same number
-			merged_column_tiles = []
-			index = 0
-			while index < len(current_column_tiles):
-				lower_tile = current_column_tiles[index]
+			while row_index < self.grid_height - 1:
+				lower_tile = self.tile_matrix[row_index][column_index]
+				upper_tile = self.tile_matrix[row_index + 1][
+					column_index
+				]
 
-				# Check if there is a tile above it and
-				# if their numbers match
-				if index < len(current_column_tiles) - 1:
-					upper_tile = current_column_tiles[index + 1]
+				if (
+					lower_tile is not None
+					and upper_tile is not None
+					and getattr(lower_tile, "number", None)
+					== getattr(upper_tile, "number", None)
+				):
+					# Merge the tiles
+					new_value = lower_tile.number * 2
+					lower_tile.set_number(new_value)
+					total_points += new_value
 
-					if getattr(
-						lower_tile, "number", None
-					) == getattr(upper_tile, "number", None):
-						# Merge happens!
-						new_value = lower_tile.number * 2
-						lower_tile.set_number(new_value)
-						total_points += new_value
-						merged_column_tiles.append(lower_tile)
-						index += 2  # Skip the upper tile
-						continue
+					# Shift all tiles above the merge down
+					# by one cell to close the gap
+					for shift_row in range(
+						row_index + 1, self.grid_height - 1
+					):
+						self.tile_matrix[shift_row][
+							column_index
+						] = self.tile_matrix[shift_row + 1][
+							column_index
+						]
 
-				# No merge, just keep the tile
-				merged_column_tiles.append(lower_tile)
-				index += 1
+					# Clear the topmost cell in the column
+					self.tile_matrix[self.grid_height - 1][
+						column_index
+					] = None
 
-			# Write the compacted/merged tiles back to the grid
-			for row_index in range(self.grid_height):
-				if row_index < len(merged_column_tiles):
-					self.tile_matrix[row_index][column_index] = (
-						merged_column_tiles[row_index]
-					)
-				else:
-					self.tile_matrix[row_index][column_index] = None
+					# Do not advance row_index.
+					# This allows the newly dropped tile
+					# to chain merge with the current lower_tile
+					# on the next loop iteration.
+					continue
+
+				# Move to the next pair
+				row_index += 1
 
 		return total_points
 
