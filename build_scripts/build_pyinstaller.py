@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Cross-platform PyInstaller build helper for the tetris2048 project.
 
 This script wraps common PyInstaller invocations and adds convenience features.
