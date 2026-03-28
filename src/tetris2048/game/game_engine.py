@@ -343,6 +343,78 @@ class GameEngine:
 		self.rotation_track(key_typed)
 		stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
 
+	def display_game_over_state(self) -> None:
+		"""Render the grid with a GAME OVER overlay."""
+		stddraw = _lazy_import_stddraw()
+		color_cls = _lazy_import_color()
+
+		stddraw.clear(self.grid.empty_cell_color)
+		self.grid.draw_grid()
+		if self.current_tetromino is not None:
+			self.current_tetromino.draw()
+		self.grid.draw_boundaries()
+		self.grid.draw_ui()
+
+		stddraw.setPenColor(color_cls(255, 255, 255))
+		stddraw.setFontFamily("Arial")
+		stddraw.setFontSize(40)
+		center_x = (self.grid_width - 1) / 2
+		center_y = self.grid_height / 2
+		stddraw.boldText(center_x, center_y, "GAME OVER")
+		stddraw.setFontSize(20)
+		stddraw.boldText(center_x, center_y - 2.0, "Press R to Restart")
+
+		stddraw.show(50)
+
+	def _handle_game_over_input(self) -> None:
+		"""Check for restart input during game over."""
+		stddraw = _lazy_import_stddraw()
+		if not stddraw.hasNextKeyTyped():  # pyright: ignore[reportAny]
+			return
+		if stddraw.nextKeyTyped() == "r":  # pyright: ignore[reportAny]
+			self.restart_game()
+			stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
+
+	def display_win_state(self) -> None:
+		"""Render the grid with a YOU WIN overlay."""
+		stddraw = _lazy_import_stddraw()
+		color_cls = _lazy_import_color()
+
+		stddraw.clear(self.grid.empty_cell_color)
+		self.grid.draw_grid()
+		if self.current_tetromino is not None:
+			self.current_tetromino.draw()
+		self.grid.draw_boundaries()
+		self.grid.draw_ui()
+
+		stddraw.setPenColor(color_cls(255, 255, 255))
+		stddraw.setFontFamily("Arial")
+		stddraw.setFontSize(40)
+		center_x = (self.grid_width - 1) / 2
+		center_y = self.grid_height / 2
+		stddraw.boldText(center_x, center_y, "YOU WIN!")
+		stddraw.setFontSize(20)
+		stddraw.boldText(
+			center_x, center_y - 2.0, "Press C to Continue or R to Restart"
+		)
+
+		stddraw.show(50)
+
+	def _handle_win_state_input(self) -> None:
+		"""Check for continue or restart input after winning."""
+		stddraw = _lazy_import_stddraw()
+		if not stddraw.hasNextKeyTyped():  # pyright: ignore[reportAny]
+			return
+
+		key_typed = stddraw.nextKeyTyped()  # pyright: ignore[reportAny]
+		if key_typed == "c":
+			self.grid.kept_playing = True
+			self.grid.game_won = False
+		elif key_typed == "r":
+			self.restart_game()
+
+		stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
+
 	def run(self) -> None:
 		"""Run the main game loop.
 
@@ -362,7 +434,19 @@ class GameEngine:
 			raise RuntimeError(msg)
 
 		# Main game loop
-		while not self.grid.game_over:
+		while True:
+			if self.grid.game_over:
+				self.display_game_over_state()
+				self._handle_game_over_input()
+				continue
+
+			if getattr(self.grid, "game_won", False) and not getattr(
+				self.grid, "kept_playing", False
+			):
+				self.display_win_state()
+				self._handle_win_state_input()
+				continue
+
 			# Handle user input
 			self.handle_input()
 

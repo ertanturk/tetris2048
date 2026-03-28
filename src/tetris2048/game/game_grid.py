@@ -17,6 +17,8 @@ from tetris2048.rendering.color import Color
 if TYPE_CHECKING:
 	from tetris2048.core.tile import Tile
 
+WIN_CONDITION = 2048
+
 
 class DrawableTetromino(Protocol):
 	"""Protocol for tetromino-like objects that can be drawn."""
@@ -63,6 +65,9 @@ class GameGrid:
 		self.current_tetromino: DrawableTetromino | None = None
 		# Game over flag
 		self.game_over: bool = False
+		# Win state flags
+		self.game_won: bool = False
+		self.kept_playing: bool = False
 		# UI state
 		self.score: int = 0
 		self.next_tetromino: DrawableTetromino | None = None
@@ -287,6 +292,13 @@ class GameGrid:
 					new_value = lower_tile.number * 2
 					lower_tile.set_number(new_value)
 					total_points += new_value
+
+					# Check for win condition
+					if (
+						new_value >= WIN_CONDITION
+						and not self.kept_playing
+					):
+						self.game_won = True
 
 					# Shift all tiles above the merge down
 					# by one cell to close the gap
