@@ -318,7 +318,7 @@ class GameEngine:
 					msg = "Position not returned by tetromino"
 					raise RuntimeError(msg)
 				self.grid.update_grid(tiles, pos)  # pyright: ignore[reportUnusedCallResult]
-
+				self.score = self.grid.score
 				# Spawn next tetromino
 				self.spawn_tetromino()
 

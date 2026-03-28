@@ -226,6 +226,52 @@ class GameGrid:
 		"""
 		return 0 <= row < self.grid_height and 0 <= col < self.grid_width
 
+	def clear_full_rows(self) -> int:
+		"""Detect and remove any full rows.
+
+		Returns:
+			The total points gained from removed rows (sum of tile numbers).
+
+		Behavior:
+		- Collect all non-full rows in bottom-to-top order.
+		- Sum numbers for full rows and drop them.
+		- Construct a new tile_matrix with the remaining rows at the bottom
+		and empty rows at the top.
+		"""
+		total_points = 0
+		remaining_rows: list[np.ndarray] = []
+
+		# Iterate from bottom
+		for row in range(self.grid_height):
+			row_tiles = self.tile_matrix[row]
+			# Determine if row is full
+			if any(t is None for t in row_tiles):
+				remaining_rows.append(row_tiles.copy())
+			else:
+				row_sum = 0
+				for t in row_tiles:
+					if t is not None:
+						row_sum += getattr(t, "number", 0)
+				total_points += row_sum
+
+		# If no rows were cleared, nothing to do
+		if len(remaining_rows) == self.grid_height:
+			return 0
+
+		# Build a new tile matrix
+		new_matrix = np.full((self.grid_height, self.grid_width), None)
+		for i, rtiles in enumerate(remaining_rows):
+			new_matrix[i, :] = rtiles
+
+		# Replace the tile matrix
+		self.tile_matrix = new_matrix
+
+		# Update stored score
+		if total_points:
+			self.score = getattr(self, "score", 0) + total_points
+
+		return total_points
+
 	def update_grid(self, tiles_to_lock: np.ndarray, blc_position: Point) -> bool:
 		"""Lock tiles onto the grid after a tetromino lands.
 
@@ -255,5 +301,6 @@ class GameGrid:
 					else:
 						# Game over if tile is above grid
 						self.game_over = True
+		self.clear_full_rows()
 
 		return self.game_over
