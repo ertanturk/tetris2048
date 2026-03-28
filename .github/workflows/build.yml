@@ -1,0 +1,40 @@
+name: Build Game Executables
+on: [push]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Linux Dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y python3-tk tcl-dev tk-dev
+
+      - name: Install Python Packages
+        run: |
+          pip install pygame numpy pyinstaller
+          pip install -e .
+
+      - name: Build
+        # This uses the dynamic finder in your script
+        run: python build_scripts/build_pyinstaller.py --onefile --windowed --name "Tetris2048_${{ matrix.os }}"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-${{ matrix.os }}
+          path: |
+            dist/Tetris2048_ubuntu-latest
+            dist/Tetris2048_windows-latest.exe

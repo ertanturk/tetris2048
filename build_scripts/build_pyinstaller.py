@@ -135,30 +135,53 @@ def _add_config_args(cmd: list[str], options: BuildOptions) -> None:
 	cmd.append("--windowed" if options.windowed else "--console")
 
 
-def _add_resource_args(cmd: list[str], options: BuildOptions) -> None:
-	"""Add resources and bundle all Tcl/Tk 9.0 binaries from uv."""
+def _add_resource_args(cmd: list[str], options: BuildOptions) -> None:  # noqa: C901
+	"""Add resources and dynamically find Tcl/Tk binaries for Linux and Windows."""
 	if options.icon and options.icon.exists():
 		cmd += ["--icon", str(options.icon)]
 	elif options.icon:
 		logger.warning("Warning: icon file not found: %s", options.icon)
 
+	if "numpy" not in options.hidden_imports:
+		options.hidden_imports.append("numpy")
+
+	for hidden_import in options.hidden_imports:
+		cmd += ["--hidden-import", hidden_import]
+
 	cmd += ["--collect-all", "tkinter"]
 	cmd += ["--collect-all", "_tkinter"]
 
-	uv_lib_path = Path(
-		"/home/ertan/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib"
-	)
+	# Find the library directory relative to the current Python interpreter
+	python_base = Path(sys.executable).parent
+	potential_lib_paths = [
+		python_base.parent / "lib",  # Standard Linux / uv layout
+		python_base / "DLLs",  # Standard Windows layout
+		Path(
+			"/home/ertan/.local/share/uv/python/cpython-3.14.3-linux-x86_64-gnu/lib"
+		),  # Local fallback
+	]
 
-	if uv_lib_path.exists():
-		# Find and add all Tcl/Tk 9.0 related libraries
-		for lib in uv_lib_path.glob("libtcl*9.0.so"):
-			cmd += ["--add-binary", f"{lib}:."]
-			logger.info("Bundling binary: %s", lib)
-		for lib in uv_lib_path.glob("libtk*9.0.so"):
-			cmd += ["--add-binary", f"{lib}:."]
-			logger.info("Bundling binary: %s", lib)
+	# Set platform-specific search patterns
+	if sys.platform == "win32":
+		patterns = ["tcl*90.dll", "tk*90.dll", "tcl*86.dll", "tk*86.dll"]
+		sep = ";"
 	else:
-		logger.error("Build failed: uv library path not found: %s", uv_lib_path)
+		patterns = [
+			"libtcl*9.0.so",
+			"libtk*9.0.so",
+			"libtcl*8.6.so",
+			"libtk*8.6.so",
+		]
+		sep = ":"
+
+	# Search and add found binaries
+	for base_path in potential_lib_paths:
+		if not base_path.exists():
+			continue
+		for pattern in patterns:
+			for lib in base_path.glob(pattern):
+				cmd += ["--add-binary", f"{lib}{sep}."]
+				logger.info("Bundling binary: %s", lib)
 
 	for data in _get_add_data_args(options.extra_add_data):
 		cmd += ["--add-data", data]
