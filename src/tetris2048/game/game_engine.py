@@ -66,34 +66,49 @@ class GameEngine:
 
 	def __init__(self) -> None:
 		"""Initialize the game engine with default settings."""
+		# Logger for this module
+		self._logger: logging.Logger = logging.getLogger(__name__)
+
 		self.grid_height: int = self.GRID_HEIGHT
 		self.grid_width: int = self.GRID_WIDTH
 		self.cell_size: int = self.CELL_SIZE
 
-		# Calculate canvas dimensions
-		self.canvas_height: int = self.cell_size * self.grid_height
-		self.canvas_width: int = self.cell_size * self.grid_width
+		# Width of the UI panel on the right in user units
+		self.ui_panel_units: int = 5
 
-		# Initialize the game grid
-		game_grid_cls = _lazy_import_game_grid()
-		self.grid: GameGrid = game_grid_cls(self.grid_height, self.grid_width)
-		self.current_tetromino: Tetromino | None = None
+		# Calculate canvas dimensions in pixels
+		self.canvas_height: int = self.cell_size * self.grid_height
+		self.canvas_width: int = self.cell_size * (
+			self.grid_width + self.ui_panel_units
+		)
 
 		# Bag for tetromino randomization
 		self._bag: list[str] = []
 
+		# Initialize the game grid
+		game_grid_cls = _lazy_import_game_grid()
+		self.grid: GameGrid = game_grid_cls(
+			self.grid_height,
+			self.grid_width,
+			ui_panel_units=self.ui_panel_units,
+		)
+
+		# Tetromino lifecycle
+		self.current_tetromino: Tetromino | None = None
+		self.next_tetromino: Tetromino | None = self.create_tetromino()
+
+		# Score tracking
+		self.score: int = 0
+
 		# Rotation track for tetromino rotation
 		self._rotation_degree: int = 0
-
-		# Logger for this module
-		self._logger: logging.Logger = logging.getLogger(__name__)
 
 	def setup_display(self) -> None:
 		"""Set up the display canvas and coordinate system."""
 		stddraw = _lazy_import_stddraw()
 		tetromino_cls = _lazy_import_tetromino()
 		stddraw.setCanvasSize(self.canvas_width, self.canvas_height)  # pyright: ignore[reportAny]
-		stddraw.setXscale(-0.5, self.grid_width - 0.5)  # pyright: ignore[reportAny]
+		stddraw.setXscale(-0.5, self.grid_width - 0.5 + self.ui_panel_units)  # pyright: ignore[reportAny]
 		stddraw.setYscale(-0.5, self.grid_height - 0.5)  # pyright: ignore[reportAny]
 
 		# Set grid dimensions for Tetromino class
@@ -130,9 +145,15 @@ class GameEngine:
 
 	def spawn_tetromino(self) -> None:
 		"""Create and spawn a new tetromino into the game grid."""
-		self.current_tetromino = self.create_tetromino()
+		if self.next_tetromino is None:
+			self.next_tetromino = self.create_tetromino()
+
+		self.current_tetromino = self.next_tetromino
+		self.next_tetromino = self.create_tetromino()
 		self._rotation_degree = 0
 		self.grid.current_tetromino = self.current_tetromino
+		self.grid.next_tetromino = self.next_tetromino
+		self.grid.score = self.score
 
 	def display_game_menu(self) -> None:
 		"""Display the main game menu and wait for user to start.
@@ -144,29 +165,42 @@ class GameEngine:
 		picture_cls = _lazy_import_picture()
 		stddraw = _lazy_import_stddraw()
 		# Menu colors
-		background_color = color_cls(42, 69, 99)
-		button_color = color_cls(25, 255, 228)
-		text_color = color_cls(31, 160, 239)
+		background_color = color_cls(18, 28, 48)
+		button_color = color_cls(253, 143, 135)
+		text_color = color_cls(245, 245, 245)
 
 		# Clear background
 		stddraw.clear(background_color)  # pyright: ignore[reportAny]
 
 		# Get the directory of this file and build path to menu image
-		current_dir = Path(__file__).resolve().parent
-		img_file = current_dir / ".." / ".." / "images" / "menu_image.png"
+		repo_root = Path(__file__).resolve().parents[3]
+		img_file = repo_root / "images" / "menu_image.png"
 
 		# Display image if it exists
-		img_center_x = (self.grid_width - 1) / 2
+		canvas_center_x = (self.grid_width + self.ui_panel_units - 1) / 2
 		img_center_y = self.grid_height - 7
 
 		if img_file.exists():
-			image_to_display = picture_cls(str(img_file))
-			stddraw.picture(image_to_display, img_center_x, img_center_y)  # pyright: ignore[reportAny]
+			try:
+				image_to_display = picture_cls(str(img_file))
+				stddraw.picture(
+					image_to_display, canvas_center_x, img_center_y
+				)  # pyright: ignore[reportAny]
+			except OSError:
+				# Loading failed
+				self._logger.debug(
+					"Failed to load menu image at %s", img_file
+				)
+		else:
+			self._logger.debug("Menu image not found at %s", img_file)
 
 		# Draw start button
 		button_w, button_h = self.grid_width - 1.5, 2
-		button_blc_x = img_center_x - button_w / 2
-		button_blc_y = 4
+		button_center_x = canvas_center_x
+		button_center_y = 4.0
+
+		button_blc_x = button_center_x - (button_w / 2)
+		button_blc_y = button_center_y - (button_h / 2)
 
 		stddraw.setPenColor(button_color)  # pyright: ignore[reportAny]
 		stddraw.filledRectangle(button_blc_x, button_blc_y, button_w, button_h)  # pyright: ignore[reportAny]
@@ -175,7 +209,9 @@ class GameEngine:
 		stddraw.setFontFamily("Arial")  # pyright: ignore[reportAny]
 		stddraw.setFontSize(25)  # pyright: ignore[reportAny]
 		stddraw.setPenColor(text_color)  # pyright: ignore[reportAny]
-		stddraw.text(img_center_x, 5, "Click Here to Start the Game")  # pyright: ignore[reportAny]
+		stddraw.text(
+			button_center_x, button_center_y, "Click Here to Start the Game"
+		)  # pyright: ignore[reportAny]
 
 		# Wait for user click
 		while True:

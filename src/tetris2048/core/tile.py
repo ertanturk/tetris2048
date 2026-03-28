@@ -42,10 +42,10 @@ class Tile:
 	font_family: str = "Arial"
 	font_size: int = 16
 
-	def __init__(self) -> None:
+	def __init__(self, number: int = 2) -> None:
 		"""Initialize a tile with number 2 and default colors."""
 		color_class = _lazy_import_color()
-		self.number: int = 2
+		self.number: int = number
 		self.background_color: Color = color_class(151, 178, 199)
 		self.foreground_color: Color = color_class(0, 100, 200)
 		self.box_color: Color = color_class(0, 100, 200)

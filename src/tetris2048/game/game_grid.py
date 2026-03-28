@@ -40,22 +40,27 @@ class GameGrid:
 		game_over (bool): Whether the game has ended.
 	"""
 
-	def __init__(self, grid_h: int, grid_w: int) -> None:
+	def __init__(self, grid_h: int, grid_w: int, ui_panel_units: int = 0) -> None:
 		"""Initialize the game grid with given dimensions.
 
 		Args:
 			grid_h: The height of the grid in cells.
 			grid_w: The width of the grid in cells.
+			ui_panel_units: The number of units reserved for the UI panel.
 		"""
 		color_class = Color
 		self.grid_height: int = grid_h
 		self.grid_width: int = grid_w
+		self.ui_panel_units: int = ui_panel_units
 		# Create a tile matrix to store tiles locked on the game grid
 		self.tile_matrix: np.ndarray = np.full((grid_h, grid_w), None)
 		# The tetromino currently being moved
 		self.current_tetromino: DrawableTetromino | None = None
 		# Game over flag
 		self.game_over: bool = False
+		# UI state
+		self.score: int = 0
+		self.next_tetromino: object | None = None
 		# Colors for display
 		self.empty_cell_color: Color = color_class(42, 69, 99)
 		self.line_color: Color = color_class(0, 100, 200)
@@ -79,8 +84,81 @@ class GameGrid:
 			self.current_tetromino.draw()
 		# Draw boundary box
 		self.draw_boundaries()
+		# Draw UI panel
+		self.draw_ui()
 		# Show with 500ms pause
 		stddraw.show(500)
+
+	def draw_ui(self) -> None:
+		"""Draw the right-side UI panel (score and next tetromino preview).
+
+		This reserves an area to the right of the board of width
+		(user units). The preview for the next tetromino is placed near the
+		bottom of the panel with configurable padding so it doesn't
+		crowd the panel edges.
+		"""
+		if self.ui_panel_units <= 0:
+			return
+
+		# UI rectangle
+		ui_left_x = float(self.grid_width) - 0.5
+		ui_bottom_y = -0.5
+		ui_w = float(self.ui_panel_units)
+		ui_h = float(self.grid_height)
+
+		# Background for UI
+		ui_bg = Color(30, 50, 80)
+		stddraw.setPenColor(ui_bg)
+		stddraw.filledRectangle(ui_left_x, ui_bottom_y, ui_w, ui_h)
+
+		# Draw score at the top of the UI
+		stddraw.setPenColor(Color(255, 255, 255))
+		stddraw.setFontFamily("Arial")
+		stddraw.setFontSize(25)
+		score_x = ui_left_x + ui_w / 2
+		score_y = ui_bottom_y + ui_h - 1.0  # 1 user-unit down from top
+		stddraw.boldText(score_x, score_y, "SCORE")
+		stddraw.boldText(score_x, score_y - 1.0, f"{getattr(self, 'score', 0)}")
+
+		# Draw "Next" top of the next tetromino preview
+		stddraw.setFontSize(25)
+		stddraw.boldText(score_x, score_y - 13.85, "NEXT")
+
+		# Draw a preview of next tetromino at the bottom of the UI panel
+		next_piece = getattr(self, "next_tetromino", None)
+		if next_piece is None:
+			return
+
+		# Get a bounded copy of the next piece tile matrix
+		tiles, _ = next_piece.get_min_bounded_tile_matrix()
+		n_rows, n_cols = tiles.shape
+
+		# Decide padding inside the UI panel
+		vpad_bottom = 0.5
+
+		# Compute preview center near the bottom
+		preview_height = n_rows
+		preview_center_y = ui_bottom_y + vpad_bottom + (preview_height / 2)
+
+		# Center preview horizontally inside UI panel
+		preview_center_x = ui_left_x + ui_w / 2
+
+		# Compute offset
+		offset_x = preview_center_x - (n_cols / 2)
+		offset_y = preview_center_y - (n_rows / 2)
+
+		# Draw preview tiles slightly smaller than board cells
+		length = 0.8
+
+		for r in range(n_rows):
+			for c in range(n_cols):
+				t = tiles[r][c]
+				if t is None:
+					continue
+				px = offset_x + c + 0.5
+				py = offset_y + (n_rows - 1 - r) + 0.5
+				p = Point(px, py)
+				t.draw(p, length=length)
 
 	def draw_grid(self) -> None:
 		"""Draw the game grid cells and lines.

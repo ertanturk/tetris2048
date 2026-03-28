@@ -42,6 +42,14 @@ class Tetromino:
 		"J": [(1, 0), (1, 1), (1, 2), (0, 2)],
 	}
 
+	def _spawn_tile_number(self) -> int:
+		"""Return initial tile number: 90% chance 2, 10% chance 4.
+
+		Matches common 2048 spawn behavior where most new tiles are 2 and 4.
+		"""
+		# 1 out of 10 chance to be a 4
+		return 4 if secrets.randbelow(10) == 0 else 2
+
 	grid_height: int = 20
 	grid_width: int = 12
 
@@ -67,7 +75,9 @@ class Tetromino:
 		# Place tiles according to the shape
 		for i in range(4):
 			col_index, row_index = self.SHAPES[self.type][i]
-			self.tile_matrix[row_index][col_index] = Tile()
+			self.tile_matrix[row_index][col_index] = Tile(
+				self._spawn_tile_number()
+			)
 
 		self.bottom_left_cell: Point = Point()
 		self.bottom_left_cell.y = self.grid_height - 1
