@@ -100,6 +100,9 @@ class GameEngine:
 		# Score tracking
 		self.score: int = 0
 
+		# State tracking
+		self.is_paused: bool = False
+
 		# Rotation track for tetromino rotation
 		self._rotation_degree: int = 0
 
@@ -232,6 +235,53 @@ class GameEngine:
 				):
 					break
 
+	def restart_game(self) -> None:
+		"""Restart the game by resetting the grid, score, and tetrominoes."""
+		game_grid_cls = _lazy_import_game_grid()
+
+		# Re-initialize the grid
+		self.grid = game_grid_cls(
+			self.grid_height,
+			self.grid_width,
+			ui_panel_units=self.ui_panel_units,
+		)
+
+		# Reset score and randomization bag
+		self.score = 0
+		self._bag.clear()
+
+		# Spawn new pieces
+		self.current_tetromino = None
+		self.next_tetromino = self.create_tetromino()
+		self.spawn_tetromino()
+
+		# Unpause
+		self.is_paused = False
+
+	def display_paused_state(self) -> None:
+		"""Render the grid with a PAUSED overlay and poll input faster."""
+		stddraw = _lazy_import_stddraw()
+		color_cls = _lazy_import_color()
+
+		# Draw the static game state
+		stddraw.clear(self.grid.empty_cell_color)
+		self.grid.draw_grid()
+		if self.current_tetromino is not None:
+			self.current_tetromino.draw()
+		self.grid.draw_boundaries()
+		self.grid.draw_ui()
+
+		# Draw PAUSED overlay text
+		stddraw.setPenColor(color_cls(255, 255, 255))
+		stddraw.setFontFamily("Arial")
+		stddraw.setFontSize(40)
+		center_x = (self.grid_width - 1) / 2
+		center_y = self.grid_height / 2
+		stddraw.boldText(center_x, center_y, "PAUSED")
+
+		# Show with a shorter 50ms pause to keep keyboard input responsive
+		stddraw.show(50)
+
 	def rotation_track(self: "GameEngine", key_typed: str) -> None:
 		"""Track rotation requests and attempt rotation.
 
@@ -269,7 +319,17 @@ class GameEngine:
 
 		key_typed = stddraw.nextKeyTyped()  # pyright: ignore[reportAny]
 
-		if self.current_tetromino is None:
+		if key_typed == "escape":
+			self.is_paused = not self.is_paused
+			stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
+			return
+
+		if key_typed == "r":
+			self.restart_game()
+			stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
+			return
+
+		if self.is_paused or self.current_tetromino is None:
 			stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
 			return
 
@@ -293,6 +353,8 @@ class GameEngine:
 		self.setup_display()
 		self.display_game_menu()
 
+		self.is_paused = False
+
 		# Spawn first tetromino
 		self.spawn_tetromino()
 		if self.current_tetromino is None:
@@ -303,6 +365,11 @@ class GameEngine:
 		while not self.grid.game_over:
 			# Handle user input
 			self.handle_input()
+
+			if self.is_paused:
+				# Render the paused screen and skip gravity/collisions
+				self.display_paused_state()
+				continue
 
 			# Move tetromino down
 			success = self.current_tetromino.move("down", self.grid)
