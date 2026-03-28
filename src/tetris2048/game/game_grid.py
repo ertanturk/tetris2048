@@ -6,7 +6,7 @@ of tiles, collision detection, and game over conditions.
 
 from __future__ import annotations
 
-from collections import deque
+from contextlib import suppress
 from typing import TYPE_CHECKING, Protocol, cast
 
 import numpy as np
@@ -270,155 +270,162 @@ class GameGrid:
 
 		Returns:
 			The total points gained by merges (sum of merged tile values).
-		Behavior:
-		- For each column, collect tiles bottom->top.
-		- After merges, write tiles back starting at row 0 (bottom).
 		"""
 		total_points = 0
+		merged_flag_name = "_merged_this_lock"
 
-		for col in range(self.grid_width):
-			# collect non-empty tiles from bottom to top
-			col_tiles: list[Tile] = []
-			for row in range(self.grid_height):
-				t = self.tile_matrix[row][col]
-				if t is not None:
-					col_tiles.append(t)
+		for column_index in range(self.grid_width):
+			row_index = 0
+			# Scan rows from bottom to near-top, checking adjacent pairs.
+			while row_index < self.grid_height - 1:
+				lower_tile = self.tile_matrix[row_index][column_index]
+				upper_tile = self.tile_matrix[row_index + 1][
+					column_index
+				]
 
-			if not col_tiles:
-				continue
-
-			# Process merges
-			i = 0
-			merged_tiles: list[Tile] = []
-			while i < len(col_tiles):
+				# Only merge when both cells contain tiles
 				if (
-					i + 1 < len(col_tiles)
-					and col_tiles[i].number
-					== col_tiles[i + 1].number
+					lower_tile is not None
+					and upper_tile is not None
+					and not getattr(
+						lower_tile, merged_flag_name, False
+					)
+					and not getattr(
+						upper_tile, merged_flag_name, False
+					)
+					and getattr(lower_tile, "number", None)
+					== getattr(upper_tile, "number", None)
 				):
-					# merge
-					new_value = col_tiles[i].number * 2
-					# Update bottom tile's number and colors
-					col_tiles[i].set_number(new_value)
-					# accumulate points
+					new_value = lower_tile.number * 2
+					# Update lower tile with the merged value
+					lower_tile.set_number(new_value)
+					# Accumulate merge points
 					total_points += new_value
-					# append merged tile and skip the next tile
-					merged_tiles.append(col_tiles[i])
-					i += 2
+					# Mark the resulting tile
+					lower_tile._merged_this_lock = True  # noqa: SLF001
+					# Remove the upper tile
+					self.tile_matrix[row_index + 1][
+						column_index
+					] = None
+					# Advance past the merged pair
+					row_index += 2
 				else:
-					# no merge, keep tile
-					merged_tiles.append(col_tiles[i])
-					i += 1
-
-			# Write merged_tiles back into the column starting at row 0
-			for row in range(self.grid_height):
-				if row < len(merged_tiles):
-					self.tile_matrix[row][col] = merged_tiles[row]
-				else:
-					self.tile_matrix[row][col] = None
+					# No merge at this pair, move up one row
+					row_index += 1
 
 		return total_points
 
-	def _collect_component(
-		self, start_row: int, start_col: int, visited: np.ndarray
-	) -> tuple[list[tuple[int, int]], bool]:
-		"""Breadth-first search to collect a 4-neighbor component.
-
-		Args:
-			start_row: coordinates to start BFS from (must contain a tile).
-			start_col: coordinates to start BFS from (must contain a tile).
-			visited: boolean numpy array of shape
-				(rows, cols) marking already visited cells.
-
-		Returns:
-			(component_coordinates, touches_bottom_flag)
-		"""
-		num_rows = self.grid_height
-		num_cols = self.grid_width
-
-		queue = deque()
-		queue.append((start_row, start_col))
-		visited[start_row, start_col] = True
-
-		component_coordinates: list[tuple[int, int]] = []
-		touches_bottom = False
-
-		neighbor_directions = ((1, 0), (-1, 0), (0, 1), (0, -1))
-
-		while queue:
-			current_row, current_col = queue.popleft()
-			component_coordinates.append((current_row, current_col))
-			if current_row == 0:
-				touches_bottom = True
-
-			for d_row, d_col in neighbor_directions:
-				n_row = current_row + d_row
-				n_col = current_col + d_col
-
-				# single conditional for bounds and visited/empty checks
-				if not (
-					0 <= n_row < num_rows and 0 <= n_col < num_cols
-				):
-					continue
-				if visited[n_row, n_col]:
-					continue
-				neighbor_tile = self.tile_matrix[n_row][n_col]
-				visited[n_row, n_col] = True
-				if neighbor_tile is None:
-					continue
-				queue.append((n_row, n_col))
-
-		return component_coordinates, touches_bottom
-
 	def remove_floating_components(self) -> int:
-		"""Remove connected components that do not touch the bottom row.
+		"""Remove connected components that do not touch the bottom row."""
+		total_points = 0
+		anchored_positions = set()
+		coordinates_to_check_queue = []
 
-		Returns:
-			The total points gained by removing floating components.
+		# Add all tiles on the bottom row
+		for column_index in range(self.grid_width):
+			if self.tile_matrix[0][column_index] is not None:
+				coordinates_to_check_queue.append((0, column_index))
+				anchored_positions.add((0, column_index))
 
-		Behavior:
-		- Find 4-neighbor connected components of tiles.
-		- If a component does not include any tile at row == 0 (bottom),
-		remove all tiles in the component and add their numbers to points.
-		- Do NOT apply gravity/compression after removal: floating islands are
-		simply removed and the empty cells remain. (Merges and row clears
-		still perform their own compaction when invoked.)
-		"""
-		num_rows = self.grid_height
-		num_cols = self.grid_width
-
-		visited = np.zeros((num_rows, num_cols), dtype=bool)
-		total_removed_points = 0
-
-		# Scan grid to find components; skip visited cells quickly.
-		for row in range(num_rows):
-			for col in range(num_cols):
-				if visited[row, col]:
-					continue
-
-				start_tile = self.tile_matrix[row][col]
-				visited[row, col] = True
-				if start_tile is None:
-					continue
-
-				component_coords, touches_bottom = (
-					self._collect_component(row, col, visited)
+		# Find all tiles connected to the anchored set
+		adjacent_coordinate_offsets = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+		while coordinates_to_check_queue:
+			current_row_index, current_column_index = (
+				coordinates_to_check_queue.pop(0)
+			)
+			for row_offset, column_offset in adjacent_coordinate_offsets:
+				neighbor_row_index = current_row_index + row_offset
+				neighbor_column_index = (
+					current_column_index + column_offset
 				)
 
-				if touches_bottom:
-					continue
-
-				# Remove component and accumulate points
-				for comp_row, comp_col in component_coords:
-					tile_obj = self.tile_matrix[comp_row][comp_col]
-					if tile_obj is None:
-						continue
-					total_removed_points += getattr(
-						tile_obj, "number", 0
+				if (
+					0 <= neighbor_row_index < self.grid_height
+					and 0 <= neighbor_column_index < self.grid_width
+				):
+					is_not_anchored = (
+						neighbor_row_index,
+						neighbor_column_index,
+					) not in anchored_positions
+					has_tile = (
+						self.tile_matrix[neighbor_row_index][
+							neighbor_column_index
+						]
+						is not None
 					)
-					self.tile_matrix[comp_row][comp_col] = None
 
-		return total_removed_points
+					if is_not_anchored and has_tile:
+						anchored_positions.add(
+							(
+								neighbor_row_index,
+								neighbor_column_index,
+							)
+						)
+						coordinates_to_check_queue.append(
+							(
+								neighbor_row_index,
+								neighbor_column_index,
+							)
+						)
+
+		# Remove tiles not in the anchored set and add their points
+		for row_index in range(self.grid_height):
+			for column_index in range(self.grid_width):
+				current_tile = self.tile_matrix[row_index][column_index]
+				if (
+					current_tile is not None
+					and (row_index, column_index)
+					not in anchored_positions
+				):
+					total_points += getattr(
+						current_tile, "number", 0
+					)
+					self.tile_matrix[row_index][column_index] = None
+
+		return total_points
+
+	def _clear_transient_merge_flags(self) -> None:
+		"""Remove transient per-lock merge flags from all tiles.
+
+		Uses contextlib.suppress to ignore attribute deletion errors.
+		"""
+		flag_name = "_merged_this_lock"
+		for row_iter in range(self.grid_height):
+			for col_iter in range(self.grid_width):
+				tile_object = self.tile_matrix[row_iter][col_iter]
+				if tile_object is None:
+					continue
+				if getattr(tile_object, flag_name, False):
+					with suppress(Exception):
+						delattr(tile_object, flag_name)
+
+	def _cleanup_transient_merge_flags(self) -> None:
+		"""Cleanup transient merge flags after processing.
+
+		Alias for clarity and future extension (keeps update_grid concise).
+		"""
+		self._clear_transient_merge_flags()
+
+	def _run_stabilization_loop(self) -> int:
+		"""Run merge/clear/remove passes until no changes; return points gained.
+
+		Encapsulates the repeated-pass loop so update_grid remains small.
+		"""
+		total_points_accumulated = 0
+		while True:
+			merged_points = self.merge_vertical()
+			cleared_points = self.clear_full_rows()
+			removed_points = self.remove_floating_components()
+			if (
+				merged_points == 0
+				and cleared_points == 0
+				and removed_points == 0
+			):
+				break
+			total_points_accumulated += (
+				merged_points + cleared_points + removed_points
+			)
+		return total_points_accumulated
 
 	def update_grid(self, tiles_to_lock: np.ndarray, blc_position: Point) -> bool:
 		"""Lock tiles onto the grid after a tetromino lands.
@@ -452,21 +459,15 @@ class GameGrid:
 					# Tile landed above visible grid -> game over
 					self.game_over = True
 
-		# Repeatedly apply merges, clears, and floating removals until stable.
-		total_points_accumulated = 0
-		while True:
-			merged_points = self.merge_vertical()
-			cleared_points = self.clear_full_rows()
-			removed_points = self.remove_floating_components()
-			if (
-				merged_points == 0
-				and cleared_points == 0
-				and removed_points == 0
-			):
-				break
-			total_points_accumulated += (
-				merged_points + cleared_points + removed_points
-			)
+		# Ensure transient merged flags are cleared before processing.
+		self._clear_transient_merge_flags()
+
+		# Run stabilization loop and collect points.
+		total_points_accumulated = self._run_stabilization_loop()
+
+		# Cleanup transient merged flags so tile objects are left clean.
+		self._cleanup_transient_merge_flags()
+
 		# Add any accumulated points once
 		if total_points_accumulated:
 			self.score = (
