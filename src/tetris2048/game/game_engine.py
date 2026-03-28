@@ -79,6 +79,12 @@ class GameEngine:
 		self.grid: GameGrid = game_grid_cls(self.grid_height, self.grid_width)
 		self.current_tetromino: Tetromino | None = None
 
+		# Bag for tetromino randomization
+		self._bag: list[str] = []
+
+		# Rotation track for tetromino rotation
+		self._rotation_degree: int = 0
+
 		# Logger for this module
 		self._logger: logging.Logger = logging.getLogger(__name__)
 
@@ -94,6 +100,18 @@ class GameEngine:
 		tetromino_cls.grid_height = self.grid_height
 		tetromino_cls.grid_width = self.grid_width
 
+	def _refill_bag(self) -> None:
+		"""Refill and shuffle the bag of tetromino types."""
+		# Choose the set of shapes you support here. Make sure Tetromino.SHAPES
+		# contains entries for every name in this list.
+		bag = ["I", "O", "Z", "L", "T", "S", "J"]
+		# Fisher-Yates shuffle using secrets for cryptographically-strong
+		# randomness.
+		for i in range(len(bag) - 1, 0, -1):
+			j = secrets.randbelow(i + 1)
+			bag[i], bag[j] = bag[j], bag[i]
+		self._bag = bag
+
 	def create_tetromino(self) -> "Tetromino":
 		"""Create a new random tetromino.
 
@@ -101,13 +119,19 @@ class GameEngine:
 			A new Tetromino with a random shape.
 		"""
 		tetromino_cls = _lazy_import_tetromino()
-		tetromino_types = ["I", "O", "Z"]
-		# Use secrets to avoid security lint about pseudo-random for crypto
-		return tetromino_cls(secrets.choice(tetromino_types))
+		# Refill bag if empty
+		if not self._bag:
+			self._refill_bag()
+
+		shape = self._bag.pop()
+		# Log spawn for verification
+		self._logger.debug("Spawning tetromino: %s", shape)
+		return tetromino_cls(shape)
 
 	def spawn_tetromino(self) -> None:
 		"""Create and spawn a new tetromino into the game grid."""
 		self.current_tetromino = self.create_tetromino()
+		self._rotation_degree = 0
 		self.grid.current_tetromino = self.current_tetromino
 
 	def display_game_menu(self) -> None:
@@ -172,6 +196,35 @@ class GameEngine:
 				):
 					break
 
+	def rotation_track(self: "GameEngine", key_typed: str) -> None:
+		"""Track rotation requests and attempt rotation.
+
+		When the user presses the rotation key (here we treat 'up'
+		as rotate +90 degrees clockwise), we call the tetromino's rotate
+		method with a 90-degree increment and update the tracked
+		rotation degrees when the rotation is successfully applied.
+
+		Args:
+			key_typed: the typed key (from stddraw.nextKeyTyped()).
+		"""
+		# Only respond to rotation key
+		if key_typed != "up":
+			return
+
+		# No current tetromino -> nothing to rotate
+		if self.current_tetromino is None:
+			return
+
+		rotation_step = 90
+		rotated = self.current_tetromino.rotate(rotation_step, self.grid)
+
+		if rotated:
+			if self._rotation_degree is None:
+				self._rotation_degree = 0
+			self._rotation_degree = (
+				self._rotation_degree + rotation_step
+			) % 360
+
 	def handle_input(self) -> None:
 		"""Handle keyboard input for tetromino movement."""
 		stddraw = _lazy_import_stddraw()
@@ -191,6 +244,7 @@ class GameEngine:
 		elif key_typed == "down":
 			_ = self.current_tetromino.move("down", self.grid)
 
+		self.rotation_track(key_typed)
 		stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
 
 	def run(self) -> None:

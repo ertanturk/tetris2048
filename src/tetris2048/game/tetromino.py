@@ -31,11 +31,15 @@ class Tetromino:
 		grid_width (int): The width of the game grid (class variable).
 	"""
 
-	# Standard Tetromino shapes
+	# Standard Tetromino shapes column and row values
 	SHAPES: ClassVar[dict[str, list[tuple[int, int]]]] = {
 		"I": [(1, 0), (1, 1), (1, 2), (1, 3)],
 		"O": [(0, 0), (0, 1), (1, 0), (1, 1)],
-		"Z": [(0, 1), (1, 1), (1, 2), (2, 2)],
+		"Z": [(0, 0), (1, 0), (1, 1), (2, 1)],
+		"S": [(1, 0), (2, 0), (0, 1), (1, 1)],
+		"T": [(1, 0), (0, 1), (1, 1), (2, 1)],
+		"L": [(0, 0), (0, 1), (0, 2), (1, 2)],
+		"J": [(1, 0), (1, 1), (1, 2), (0, 2)],
 	}
 
 	grid_height: int = 20
@@ -164,6 +168,59 @@ class Tetromino:
 			self.bottom_left_cell.y -= 1
 
 		return True
+
+	def rotate(self, angle: int, game_grid: "GameGrid") -> bool:
+		"""Rotate this tetromino by the given angle.
+
+		Args:
+			angle: The angle to rotate (in degrees, clockwise).
+			game_grid: The game grid to check for collisions.
+
+		Returns:
+			True if the rotation was successful, False otherwise.
+		"""
+		# O piece is invariant under rotation
+		if self.type == "O":
+			return True
+
+		# numpy.rot90 rotates counter-clockwise by default, k is number of
+		# 90-degree turns to rotate clockwise.
+		rotated_matrix = np.rot90(self.tile_matrix, k=-angle // 90)
+		n = len(rotated_matrix)
+
+		# For each occupied cell in the rotated matrix compute
+		# its global position using the same bottom_left_cell anchor and check
+		# the candidate location.
+		for row in range(n):
+			for col in range(n):
+				if rotated_matrix[row][col] is None:
+					continue
+
+				# Compute the global position for this rotated
+				# local cell.
+				new_pos = Point()
+				new_pos.x = self.bottom_left_cell.x + col
+				new_pos.y = self.bottom_left_cell.y + (n - 1) - row
+
+				if not self.can_be_rotated(new_pos, game_grid):
+					return False
+		self.tile_matrix = rotated_matrix
+		return True
+
+	def can_be_rotated(self, position: Point, game_grid: "GameGrid") -> bool:
+		"""Check if it is valid to rotate a tetromino."""
+		# Horizontal bounds check
+		if position.x < 0 or position.x >= game_grid.grid_width:
+			return False
+
+		# Below bottom is invalid
+		if position.y < 0:
+			return False
+
+		if position.y >= game_grid.grid_height:
+			return True
+
+		return not game_grid.is_occupied(position.y, position.x)
 
 	def can_be_moved(self, direction: str, game_grid: "GameGrid") -> bool:
 		"""Check if this tetromino can be moved in the given direction.
