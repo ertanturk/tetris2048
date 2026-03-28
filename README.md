@@ -2,21 +2,6 @@
 
 Tetris2048 is a hybrid puzzle game that combines Tetris block mechanics with 2048 tile merging. This repository contains the full source for the game, rendering, and supporting utilities.
 
-Contents
-
-- Overview
-- Requirements
-- Installation
-- Running the game
-- Controls
-- Project structure
-- Design notes
-- Testing
-- Troubleshooting
-- Contribution
-- License
-- Contact
-
 ## Overview
 
 Tetris2048 places standard tetromino pieces on a vertical grid. Each tile contains a 2048-style number (2, 4, 8, ...). When vertically adjacent tiles share the same number they can merge according to game rules. The game integrates both row-clearing and 2048-style merges with a Tetris-style falling-piece gameplay loop.
@@ -25,7 +10,7 @@ Tetris2048 places standard tetromino pieces on a vertical grid. Each tile contai
 
 Menu screen:
 
-![Menu](images/menu_image.png)
+![Menu](images/menu.png)
 
 In-game (grid + UI):
 
