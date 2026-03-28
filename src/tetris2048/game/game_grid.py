@@ -6,7 +6,6 @@ of tiles, collision detection, and game over conditions.
 
 from __future__ import annotations
 
-from contextlib import suppress
 from typing import TYPE_CHECKING, Protocol, cast
 
 import numpy as np
@@ -24,6 +23,11 @@ class DrawableTetromino(Protocol):
 
 	def draw(self) -> None:
 		"""Draw the tetromino on the screen."""
+		...
+
+	def get_min_bounded_tile_matrix(self) -> tuple[np.ndarray, Point | None]:
+		"""Get the minimum bounded matrix of tiles and its top-left point."""
+		...
 
 
 class GameGrid:
@@ -61,7 +65,7 @@ class GameGrid:
 		self.game_over: bool = False
 		# UI state
 		self.score: int = 0
-		self.next_tetromino: object | None = None
+		self.next_tetromino: DrawableTetromino | None = None
 		# Colors for display
 		self.empty_cell_color: Color = color_class(42, 69, 99)
 		self.line_color: Color = color_class(0, 100, 200)
@@ -91,17 +95,11 @@ class GameGrid:
 		stddraw.show(300)
 
 	def draw_ui(self) -> None:
-		"""Draw the right-side UI panel (score and next tetromino preview).
-
-		This reserves an area to the right of the board of width
-		(user units). The preview for the next tetromino is placed near the
-		bottom of the panel with configurable padding so it doesn't
-		crowd the panel edges.
-		"""
+		"""Draw the right-side UI panel (score and next tetromino preview)."""
 		if self.ui_panel_units <= 0:
 			return
 
-		# UI rectangle
+		# UI rectangle bounds
 		ui_left_x = float(self.grid_width) - 0.5
 		ui_bottom_y = -0.5
 		ui_w = float(self.ui_panel_units)
@@ -119,35 +117,32 @@ class GameGrid:
 		score_x = ui_left_x + ui_w / 2
 		score_y = ui_bottom_y + ui_h - 1.0  # 1 user-unit down from top
 		stddraw.boldText(score_x, score_y, "SCORE")
-		stddraw.boldText(score_x, score_y - 1.0, f"{getattr(self, 'score', 0)}")
+		stddraw.boldText(score_x, score_y - 1.0, f"{self.score}")
 
-		# Draw "Next" top of the next tetromino preview
-		stddraw.setFontSize(25)
-		stddraw.boldText(score_x, score_y - 13.85, "NEXT")
-
-		# Draw a preview of next tetromino at the bottom of the UI panel
-		next_piece = getattr(self, "next_tetromino", None)
-		if next_piece is None:
+		# Check if there is a next piece to draw
+		if self.next_tetromino is None:
 			return
 
 		# Get a bounded copy of the next piece tile matrix
-		tiles, _ = next_piece.get_min_bounded_tile_matrix()
+		tiles, _ = self.next_tetromino.get_min_bounded_tile_matrix()
 		n_rows, n_cols = tiles.shape
 
-		# Decide padding inside the UI panel
-		vpad_bottom = 0.5
-
 		# Compute preview center near the bottom
+		vpad_bottom = 0.5
 		preview_height = n_rows
 		preview_center_y = ui_bottom_y + vpad_bottom + (preview_height / 2)
-
-		# Center preview horizontally inside UI panel
 		preview_center_x = ui_left_x + ui_w / 2
 
-		# Compute offset
+		# Draw "NEXT" text anchored dynamically above the preview piece
+		stddraw.setFontSize(25)
+		text_y_position = preview_center_y + (preview_height / 2) + 1.0
+		stddraw.boldText(score_x, text_y_position, "NEXT")
+
+		# Compute rendering offset for the tiles
 		offset_x = preview_center_x - (n_cols / 2)
 		offset_y = preview_center_y - (n_rows / 2)
 
+		# Draw the next piece tiles
 		for r in range(n_rows):
 			for c in range(n_cols):
 				t = tiles[r][c]
@@ -266,52 +261,55 @@ class GameGrid:
 		return total_points
 
 	def merge_vertical(self) -> int:
-		"""Merge vertically adjacent tiles in each column.
+		"""Merge vertically adjacent tiles and compress columns (gravity).
 
 		Returns:
 			The total points gained by merges (sum of merged tile values).
 		"""
 		total_points = 0
-		merged_flag_name = "_merged_this_lock"
 
 		for column_index in range(self.grid_width):
-			row_index = 0
-			# Scan rows from bottom to near-top, checking adjacent pairs.
-			while row_index < self.grid_height - 1:
-				lower_tile = self.tile_matrix[row_index][column_index]
-				upper_tile = self.tile_matrix[row_index + 1][
-					column_index
-				]
+			# Extract all non-empty tiles in this column
+			current_column_tiles = []
+			for row_index in range(self.grid_height):
+				tile = self.tile_matrix[row_index][column_index]
+				if tile is not None:
+					current_column_tiles.append(tile)
 
-				# Only merge when both cells contain tiles
-				if (
-					lower_tile is not None
-					and upper_tile is not None
-					and not getattr(
-						lower_tile, merged_flag_name, False
+			# Merge adjacent tiles with the same number
+			merged_column_tiles = []
+			index = 0
+			while index < len(current_column_tiles):
+				lower_tile = current_column_tiles[index]
+
+				# Check if there is a tile above it and
+				# if their numbers match
+				if index < len(current_column_tiles) - 1:
+					upper_tile = current_column_tiles[index + 1]
+
+					if getattr(
+						lower_tile, "number", None
+					) == getattr(upper_tile, "number", None):
+						# Merge happens!
+						new_value = lower_tile.number * 2
+						lower_tile.set_number(new_value)
+						total_points += new_value
+						merged_column_tiles.append(lower_tile)
+						index += 2  # Skip the upper tile
+						continue
+
+				# No merge, just keep the tile
+				merged_column_tiles.append(lower_tile)
+				index += 1
+
+			# Write the compacted/merged tiles back to the grid
+			for row_index in range(self.grid_height):
+				if row_index < len(merged_column_tiles):
+					self.tile_matrix[row_index][column_index] = (
+						merged_column_tiles[row_index]
 					)
-					and not getattr(
-						upper_tile, merged_flag_name, False
-					)
-					and getattr(lower_tile, "number", None)
-					== getattr(upper_tile, "number", None)
-				):
-					new_value = lower_tile.number * 2
-					# Update lower tile with the merged value
-					lower_tile.set_number(new_value)
-					# Accumulate merge points
-					total_points += new_value
-					# Mark the resulting tile
-					lower_tile._merged_this_lock = True  # noqa: SLF001
-					# Remove the upper tile
-					self.tile_matrix[row_index + 1][
-						column_index
-					] = None
-					# Advance past the merged pair
-					row_index += 2
 				else:
-					# No merge at this pair, move up one row
-					row_index += 1
+					self.tile_matrix[row_index][column_index] = None
 
 		return total_points
 
@@ -384,28 +382,6 @@ class GameGrid:
 
 		return total_points
 
-	def _clear_transient_merge_flags(self) -> None:
-		"""Remove transient per-lock merge flags from all tiles.
-
-		Uses contextlib.suppress to ignore attribute deletion errors.
-		"""
-		flag_name = "_merged_this_lock"
-		for row_iter in range(self.grid_height):
-			for col_iter in range(self.grid_width):
-				tile_object = self.tile_matrix[row_iter][col_iter]
-				if tile_object is None:
-					continue
-				if getattr(tile_object, flag_name, False):
-					with suppress(Exception):
-						delattr(tile_object, flag_name)
-
-	def _cleanup_transient_merge_flags(self) -> None:
-		"""Cleanup transient merge flags after processing.
-
-		Alias for clarity and future extension (keeps update_grid concise).
-		"""
-		self._clear_transient_merge_flags()
-
 	def _run_stabilization_loop(self) -> int:
 		"""Run merge/clear/remove passes until no changes; return points gained.
 
@@ -459,14 +435,8 @@ class GameGrid:
 					# Tile landed above visible grid -> game over
 					self.game_over = True
 
-		# Ensure transient merged flags are cleared before processing.
-		self._clear_transient_merge_flags()
-
 		# Run stabilization loop and collect points.
 		total_points_accumulated = self._run_stabilization_loop()
-
-		# Cleanup transient merged flags so tile objects are left clean.
-		self._cleanup_transient_merge_flags()
 
 		# Add any accumulated points once
 		if total_points_accumulated:
