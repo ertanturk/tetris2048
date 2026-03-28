@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, override
 
 from tetris2048.rendering import stddraw
 from tetris2048.rendering.color import Color
+from tetris2048.rendering.tile_palette import get_tile_colors
 
 if TYPE_CHECKING:
 	from tetris2048.core.point import Point
@@ -44,11 +45,22 @@ class Tile:
 
 	def __init__(self, number: int = 2) -> None:
 		"""Initialize a tile with number 2 and default colors."""
-		color_class = _lazy_import_color()
 		self.number: int = number
-		self.background_color: Color = color_class(151, 178, 199)
-		self.foreground_color: Color = color_class(0, 100, 200)
-		self.box_color: Color = color_class(0, 100, 200)
+		bg, fg, box = get_tile_colors(self.number)
+		self.background_color: Color = bg
+		self.foreground_color: Color = fg
+		self.box_color: Color = box
+
+	def set_number(self: Tile, new_number: int) -> None:
+		"""Update this tile's numeric value and refresh its colors.
+
+		Call this after merging to update the tile appearance.
+		"""
+		self.number = new_number
+		bg, fg, box = get_tile_colors(self.number)
+		self.background_color = bg
+		self.foreground_color = fg
+		self.box_color = box
 
 	def draw(self, position: Point, length: float = 1) -> None:
 		"""Draw this tile at the given position.
