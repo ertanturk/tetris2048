@@ -110,8 +110,14 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## Contact
 
-Maintainer: Ertan Tunç Türk
+-Ertan Tunç Türk
 Email: turke@mef.edu.tr
+
+-Yiğit Ali Ergül
+Email: erguly@mef.edu.tr
+
+-Lütfü Yiğit Karakozak
+Email: karakozakl@mef.edu.tr
 
 ## Acknowledgements
 
