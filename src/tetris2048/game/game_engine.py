@@ -181,6 +181,7 @@ class GameEngine:
 		key_typed = stddraw.nextKeyTyped()  # pyright: ignore[reportAny]
 
 		if self.current_tetromino is None:
+			stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
 			return
 
 		if key_typed == "left":
@@ -191,7 +192,6 @@ class GameEngine:
 			_ = self.current_tetromino.move("down", self.grid)
 
 		stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
-		self.spawn_tetromino()
 
 	def run(self) -> None:
 		"""Run the main game loop.
