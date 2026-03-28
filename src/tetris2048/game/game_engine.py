@@ -339,6 +339,10 @@ class GameEngine:
 			_ = self.current_tetromino.move("right", self.grid)
 		elif key_typed == "down":
 			_ = self.current_tetromino.move("down", self.grid)
+		elif key_typed == "space":
+			# Hard drop
+			while self.current_tetromino.move("down", self.grid):
+				pass
 
 		self.rotation_track(key_typed)
 		stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
@@ -475,9 +479,8 @@ class GameEngine:
 
 			# Display the current state
 			self.grid.display()
-
-		# Game over
-		self._logger.info("Game over")
+			# Game over
+			self._logger.info("Game over")
 
 
 def main() -> None:
