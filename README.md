@@ -18,10 +18,12 @@ In-game (grid + UI):
 
 ## Requirements
 
-- Python 3.12 or newer (project targets Python 3.12)
+- Python 3.12 or newer
 - A Python environment with these packages:
   - `numpy`
   - `pygame` (used for windowing/keyboard or the provided drawing shim)
+  - For Linux users running from source, these system packages are required:
+    - `python3-tk`, `tcl-dev`, `tk-dev`, `libsdl2-dev`
 
 The project uses a pyproject.toml with declared dependencies. Use a virtual environment to keep system packages clean.
 
@@ -45,6 +47,17 @@ The project uses a pyproject.toml with declared dependencies. Use a virtual envi
 
 Note: Installing via `pip install -e .` reads `pyproject.toml` and installs dependencies declared there. If you prefer, install dependencies manually: `pip install numpy pygame`.
 
+## Standalone Executables
+
+You do not need to install Python to play the game if you use the pre-built executables.
+
+1. Go to the **Actions** tab on the GitHub repository.
+2. Click the latest successful workflow run.
+3. Download the artifact for your operating system (`game-windows-latest` or `game-ubuntu-latest`) from the bottom of the page.
+4. Extract the `.zip` file.
+   - **Windows:** Double-click the `.exe` file to play.
+   - **Linux:** Run `chmod +x Tetris2048_ubuntu-latest` in your terminal, then run `./Tetris2048_ubuntu-latest`.
+
 ## Running the game
 
 After installation, the game can be started via the package entry point or module:
@@ -65,7 +78,7 @@ The game opens a window and shows the main menu. Click the start button to begin
 - Space: hard drop (instantly drop to the lowest valid position)
 - Up arrow: rotate tetromino (clockwise)
 - Escape: pause / unpause
-- R: restart the game (when paused or on game over)
+- R: restart the game
 
 ## User Interface
 
@@ -94,14 +107,14 @@ Top-level layout (key items):
 
 ## Design notes
 
-- Merge behavior is performed in `game_grid` and was designed to avoid repeated merges during a single lock cycle using a transient flag on tiles.
-- Row clearing compacts rows toward the bottom of the grid. Floating components removal is handled separately and can be configured to apply or skip gravity depending on design choices.
+- Merge behavior is performed in `game_grid.py`. It uses a bottom-to-top chain merging loop. When vertically adjacent tiles share the same number, they merge and double in value. The tiles above shift down, allowing continuous chain merges in a single turn.
+- Row clearing compacts rows toward the bottom of the grid. Floating tiles are identified using a 4-way connectivity check (up, down, left, right) anchored to the bottom row. Any disconnected tiles are immediately deleted and their values are added to the score.
 - The rendering layer is decoupled from logic to keep tests and simulation simple.
 
 ## Troubleshooting
 
 - If the menu image is not displayed, verify `images/menu_image.png` exists in the repository root. The engine attempts to load images from `images/` relative to repository root.
-- If installation fails with dependency errors, ensure your Python version is 3.12 and that `pip` is upgraded.
+- If installation fails with dependency errors, ensure your Python version is 3.12 or newer and that `pip` is upgraded.
 - If the game window does not respond to keys, ensure the display has focus.
 
 ## License
@@ -110,14 +123,14 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## Contact
 
--Ertan Tunç Türk
-Email: turke@mef.edu.tr
+- Ertan Tunç Türk
+  Email: turke@mef.edu.tr
 
--Yiğit Ali Ergül
-Email: erguly@mef.edu.tr
+- Yiğit Ali Ergül
+  Email: erguly@mef.edu.tr
 
--Lütfü Yiğit Karakozak
-Email: karakozakl@mef.edu.tr
+- Lütfü Yiğit Karakozak
+  Email: karakozakl@mef.edu.tr
 
 ## Acknowledgements
 
