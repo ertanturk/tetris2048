@@ -110,7 +110,6 @@ Top-level layout (key items):
 - Merge behavior is performed in `game_grid.py`. It uses a bottom-to-top chain merging loop. When vertically adjacent tiles share the same number, they merge and double in value. The tiles above shift down, allowing continuous chain merges in a single turn.
 - Row clearing compacts rows toward the bottom of the grid. Floating tiles are identified using a 4-way connectivity check (up, down, left, right) anchored to the bottom row. Any disconnected tiles are immediately deleted and their values are added to the score.
 - The rendering layer is decoupled from logic to keep tests and simulation simple.
-- The game
 
 ## Difficulty Progression
 
