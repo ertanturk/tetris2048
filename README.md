@@ -51,7 +51,7 @@ Note: Installing via `pip install -e .` reads `pyproject.toml` and installs depe
 
 You do not need to install Python to play the game if you use the pre-built executables.
 
-1. Go to the [v1.0.0 Release page](https://github.com/ertanturk/tetris2048/releases/tag/v1.0.0).
+1. Go to the [v1.1.0 Release page](https://github.com/ertanturk/tetris2048/releases/tag/v1.1.0).
 2. Download the `.zip` file for your operating system from the **Assets** section at the bottom.
 3. Extract the `.zip` file.
    - **Windows:** Double-click the `.exe` file to play.
@@ -78,6 +78,7 @@ The game opens a window and shows the main menu. Click the start button to begin
 - Up arrow: rotate tetromino (clockwise)
 - Escape: pause / unpause
 - R: restart the game
+- H: hold the tetromino
 
 ## User Interface
 
@@ -109,6 +110,12 @@ Top-level layout (key items):
 - Merge behavior is performed in `game_grid.py`. It uses a bottom-to-top chain merging loop. When vertically adjacent tiles share the same number, they merge and double in value. The tiles above shift down, allowing continuous chain merges in a single turn.
 - Row clearing compacts rows toward the bottom of the grid. Floating tiles are identified using a 4-way connectivity check (up, down, left, right) anchored to the bottom row. Any disconnected tiles are immediately deleted and their values are added to the score.
 - The rendering layer is decoupled from logic to keep tests and simulation simple.
+- The game
+
+## Difficulty Progression
+
+- Base Speed: 500ms per tick.
+- Difficulty Adjustment: When the score reaches 200, decrease the tick interval by 50ms (resulting in a new speed of 450ms) to increase the block fall rate.
 
 ## Troubleshooting
 

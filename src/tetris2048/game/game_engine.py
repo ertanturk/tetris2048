@@ -96,6 +96,8 @@ class GameEngine:
 		# Tetromino lifecycle
 		self.current_tetromino: Tetromino | None = None
 		self.next_tetromino: Tetromino | None = self.create_tetromino()
+		self.held_tetromino: Tetromino | None = None
+		self.can_hold: bool = True
 
 		# Score tracking
 		self.score: int = 0
@@ -156,7 +158,9 @@ class GameEngine:
 		self._rotation_degree = 0
 		self.grid.current_tetromino = self.current_tetromino
 		self.grid.next_tetromino = self.next_tetromino
+		self.grid.held_tetromino = self.held_tetromino
 		self.grid.score = self.score
+		self.can_hold = True
 
 	def display_game_menu(self) -> None:
 		"""Display the main game menu and wait for user to start.
@@ -319,6 +323,7 @@ class GameEngine:
 
 		key_typed = stddraw.nextKeyTyped()  # pyright: ignore[reportAny]
 
+		# 1. Handle global game states
 		if key_typed == "escape":
 			self.is_paused = not self.is_paused
 			stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
@@ -333,6 +338,17 @@ class GameEngine:
 			stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
 			return
 
+		# 2. Delegate active gameplay controls to lower complexity
+		self._process_gameplay_key(key_typed)
+		self.rotation_track(key_typed)
+
+		stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
+
+	def _process_gameplay_key(self, key_typed: str) -> None:
+		"""Process active gameplay controls."""
+		if self.current_tetromino is None:
+			return
+
 		if key_typed == "left":
 			_ = self.current_tetromino.move("left", self.grid)
 		elif key_typed == "right":
@@ -343,9 +359,8 @@ class GameEngine:
 			# Hard drop
 			while self.current_tetromino.move("down", self.grid):
 				pass
-
-		self.rotation_track(key_typed)
-		stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
+		elif key_typed == "h":
+			self.hold_tetromino()
 
 	def display_game_over_state(self) -> None:
 		"""Render the grid with a GAME OVER overlay."""
@@ -378,6 +393,32 @@ class GameEngine:
 		if stddraw.nextKeyTyped() == "r":  # pyright: ignore[reportAny]
 			self.restart_game()
 			stddraw.clearKeysTyped()  # pyright: ignore[reportAny]
+
+	def hold_tetromino(self) -> None:
+		"""Swap the current tetromino with the held one."""
+		if not self.can_hold or self.current_tetromino is None:
+			return
+
+		# Reset the current piece's coordinates back to the top
+		self.current_tetromino.reset_position()
+
+		if self.held_tetromino is None:
+			# First time holding move current to hold, spawn next
+			self.held_tetromino = self.current_tetromino
+			self.spawn_tetromino()
+		else:
+			# Swap current and held
+			temp = self.current_tetromino
+			self.current_tetromino = self.held_tetromino
+			self.held_tetromino = temp
+
+			# Update grid references
+			self.grid.current_tetromino = self.current_tetromino
+			self.grid.held_tetromino = self.held_tetromino
+			self._rotation_degree = 0
+
+		# Prevent multiple holds in a single drop
+		self.can_hold = False
 
 	def display_win_state(self) -> None:
 		"""Render the grid with a YOU WIN overlay."""
@@ -476,9 +517,12 @@ class GameEngine:
 				self.score = self.grid.score
 				# Spawn next tetromino
 				self.spawn_tetromino()
-
+			# Adjust delay based on score so that higher scores result
+			# in faster gameplay which makes difficulty more challenging
+			speed_reduction = (self.score // 200) * 50
+			current_delay = max(100, 500 - speed_reduction)
 			# Display the current state
-			self.grid.display()
+			self.grid.display(current_delay)
 			# Game over
 			self._logger.info("Game over")
 

@@ -71,6 +71,7 @@ class GameGrid:
 		# UI state
 		self.score: int = 0
 		self.next_tetromino: DrawableTetromino | None = None
+		self.held_tetromino: DrawableTetromino | None = None
 		# Colors for display
 		self.empty_cell_color: Color = color_class(42, 69, 99)
 		self.line_color: Color = color_class(0, 100, 200)
@@ -79,7 +80,7 @@ class GameGrid:
 		self.line_thickness: float = 0.002
 		self.box_thickness: float = 5 * self.line_thickness
 
-	def display(self) -> None:
+	def display(self, pause: int = 500) -> None:
 		"""Display the game grid on the screen.
 
 		Clears the background, draws the grid, current tetromino,
@@ -96,67 +97,88 @@ class GameGrid:
 		self.draw_boundaries()
 		# Draw UI panel
 		self.draw_ui()
-		# Show with 300ms pause
-		stddraw.show(300)
+		# Show with pause default is 500ms
+		stddraw.show(pause)
 
 	def draw_ui(self) -> None:
-		"""Draw the right-side UI panel (score and next tetromino preview)."""
+		"""Draw the right-side UI panel (score, hold, and next preview)."""
 		if self.ui_panel_units <= 0:
 			return
 
-		# UI rectangle bounds
 		ui_left_x = float(self.grid_width) - 0.5
 		ui_bottom_y = -0.5
 		ui_w = float(self.ui_panel_units)
 		ui_h = float(self.grid_height)
 
-		# Background for UI
-		ui_bg = Color(30, 50, 80)
-		stddraw.setPenColor(ui_bg)
+		# 1. UI Background & Divider Line
+		stddraw.setPenColor(Color(40, 44, 52))  # Dark slate background
 		stddraw.filledRectangle(ui_left_x, ui_bottom_y, ui_w, ui_h)
 
-		# Draw score at the top of the UI
-		stddraw.setPenColor(Color(255, 255, 255))
-		stddraw.setFontFamily("Arial")
-		stddraw.setFontSize(25)
-		score_x = ui_left_x + ui_w / 2
-		score_y = ui_bottom_y + ui_h - 1.0  # 1 user-unit down from top
-		stddraw.boldText(score_x, score_y, "SCORE")
-		stddraw.boldText(score_x, score_y - 1.0, f"{self.score}")
+		stddraw.setPenColor(Color(80, 84, 92))  # Subtle divider line
+		stddraw.line(ui_left_x, ui_bottom_y, ui_left_x, ui_bottom_y + ui_h)
 
-		# Check if there is a next piece to draw
-		if self.next_tetromino is None:
-			return
+		# Reference points for alignment
+		center_x = ui_left_x + (ui_w / 2)
+		top_y = ui_bottom_y + ui_h
 
-		# Get a bounded copy of the next piece tile matrix
-		tiles, _ = self.next_tetromino.get_min_bounded_tile_matrix()
-		n_rows, n_cols = tiles.shape
+		# 2. SCORE Section
+		score_label_y = top_y - 2.0
+		stddraw.setPenColor(Color(170, 180, 190))  # Soft gray for labels
+		stddraw.setFontFamily("Helvetica")
+		stddraw.setFontSize(20)
+		stddraw.boldText(center_x, score_label_y, "SCORE")
 
-		# Compute preview center near the bottom
-		vpad_bottom = 0.5
-		preview_height = n_rows
-		preview_center_y = ui_bottom_y + vpad_bottom + (preview_height / 2)
-		preview_center_x = ui_left_x + ui_w / 2
+		stddraw.setPenColor(Color(255, 255, 255))  # Bright white for the number
+		stddraw.setFontSize(28)
+		stddraw.boldText(center_x, score_label_y - 1.5, str(self.score))
 
-		# Draw "NEXT" text anchored dynamically above the preview piece
-		stddraw.setFontSize(25)
-		text_y_position = preview_center_y + (preview_height / 2) + 1.0
-		stddraw.boldText(score_x, text_y_position, "NEXT")
+		# 3. HOLD Section
+		hold_label_y = top_y - 7.0
+		stddraw.setPenColor(Color(170, 180, 190))
+		stddraw.setFontSize(20)
+		stddraw.boldText(center_x, hold_label_y, "HOLD")
 
-		# Compute rendering offset for the tiles
-		offset_x = preview_center_x - (n_cols / 2)
-		offset_y = preview_center_y - (n_rows / 2)
+		if self.held_tetromino is not None:
+			h_tiles, _ = self.held_tetromino.get_min_bounded_tile_matrix()
+			h_rows, h_cols = h_tiles.shape
+			h_off_x = center_x - (h_cols / 2.0)
+			h_off_y = hold_label_y - h_rows - 1.0
+			for r in range(h_rows):
+				for c in range(h_cols):
+					if h_tiles[r][c] is not None:
+						h_tiles[r][c].draw(
+							Point(
+								h_off_x + c + 0.5,
+								h_off_y
+								+ (h_rows - 1 - r)
+								+ 0.5,
+							),
+							length=1,
+						)
 
-		# Draw the next piece tiles
-		for r in range(n_rows):
-			for c in range(n_cols):
-				t = tiles[r][c]
-				if t is None:
-					continue
-				px = offset_x + c + 0.5
-				py = offset_y + (n_rows - 1 - r) + 0.5
-				p = Point(px, py)
-				t.draw(p, length=1)
+		# 4. NEXT Section
+		next_label_y = top_y - 13.0
+		stddraw.setPenColor(Color(170, 180, 190))
+		stddraw.setFontSize(20)
+		stddraw.boldText(center_x, next_label_y, "NEXT")
+
+		if self.next_tetromino is not None:
+			n_tiles, _ = self.next_tetromino.get_min_bounded_tile_matrix()
+			n_rows, n_cols = n_tiles.shape
+			n_off_x = center_x - (n_cols / 2.0)
+			n_off_y = next_label_y - n_rows - 1.0
+			for r in range(n_rows):
+				for c in range(n_cols):
+					if n_tiles[r][c] is not None:
+						n_tiles[r][c].draw(
+							Point(
+								n_off_x + c + 0.5,
+								n_off_y
+								+ (n_rows - 1 - r)
+								+ 0.5,
+							),
+							length=1,
+						)
 
 	def draw_grid(self) -> None:
 		"""Draw the game grid cells and lines.

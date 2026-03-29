@@ -99,6 +99,12 @@ class Tetromino:
 		position.y = self.bottom_left_cell.y + (n - 1) - row
 		return position
 
+	def reset_position(self) -> None:
+		"""Reset the tetromino back to the top-center spawn point."""
+		self.bottom_left_corner = Point(
+			self.grid_width // 2 - 2, self.grid_height - 4
+		)
+
 	def get_min_bounded_tile_matrix(
 		self, *, return_position: bool = False
 	) -> tuple[np.ndarray, Point | None]:
