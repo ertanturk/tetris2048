@@ -51,10 +51,9 @@ Note: Installing via `pip install -e .` reads `pyproject.toml` and installs depe
 
 You do not need to install Python to play the game if you use the pre-built executables.
 
-1. Go to the **Actions** tab on the GitHub repository.
-2. Click the latest successful workflow run.
-3. Download the artifact for your operating system (`game-windows-latest` or `game-ubuntu-latest`) from the bottom of the page.
-4. Extract the `.zip` file.
+1. Go to the [v1.0.0 Release page](https://github.com/ertanturk/tetris2048/releases/tag/v1.0.0).
+2. Download the `.zip` file for your operating system from the **Assets** section at the bottom.
+3. Extract the `.zip` file.
    - **Windows:** Double-click the `.exe` file to play.
    - **Linux:** Run `chmod +x Tetris2048_ubuntu-latest` in your terminal, then run `./Tetris2048_ubuntu-latest`.
 
